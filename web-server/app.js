@@ -31,5 +31,6 @@ if (portIndex !== -1 && (portIndex + 1) < process.argv.length) {
   config.port = port;
 }
 
+// start the web server.
 var httpServer = new HttpServer(config);
 httpServer.start();

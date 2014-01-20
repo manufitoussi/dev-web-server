@@ -4,7 +4,7 @@ var path = require('path');
 var util = require('util');
 
 var ContentTypes = require('./content-types.js');
-var Actions = require('./actions.js');
+var createActions = require('./actions.js');
 
 var DEFAULT = {
   domain: 'localhost',
@@ -30,7 +30,7 @@ var HttpServer = function (config) {
     port = config.port || DEFAULT.port,
     baseDir = config.baseDir || DEFAULT.baseDir,
     root = config.root || DEFAULT.root,
-    actions = Actions({isDebug: isDebug, delay: config.delay});
+    actions = createActions({isDebug: isDebug, delay: config.delay});
 
   var html = {
     error: function (errMsg, res, opt_code) {
