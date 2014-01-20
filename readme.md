@@ -1,10 +1,12 @@
-WEB SERVER v1.0.0
-=================
+WIT WEB SERVER v1.1.0
+=====================
 Serveur web de développement
 ----------------------------
 
 #Définition
-Ce dossier contient l'application [NodeJS] permettant de créer un serveur WEB local de développement.
+Ce projet est une application [NodeJS] permettant de créer un serveur WEB local de développement.
+
+Il se trouve sous la forme d'un package [npm].
 
 #Fonctionnalités
 Cette application va créer un serveur sur l'addresse `http://localhost:8080/`
@@ -14,7 +16,7 @@ Il est possible de choisir un autre port, et un autre répertoire racine du site
 
 La page par défaut à la racine du site est `index.html`.
 
-Il supporte l'usage du `favicon.ico` placé à la racine du site.
+Il supporte l'usage du `favicon.ico` s'il est placé à la racine du site.
 
 ##Type-Mimes supportés
 Voici ci-dessous la liste des extensions et type-mimes supportés par l'application :
@@ -29,48 +31,59 @@ Voici ci-dessous la liste des extensions et type-mimes supportés par l'applicat
 
 #Environnement requis
 
-* [NodeJS] doit être installé sur le système.
+* La dernière version de [NodeJS] doit être installé sur le système.
 
 #Installation
 
-Placer tout simplement le répertoire `web-server\` dans le répertoire de votre choix de votre projet.
+1. Cloner ce projet dans le répertoire de votre choix.
+2. Placer vous dans ce répertoire et installer le package dans votre système.
+
+Tapper :
+
+    DOS> npm install -g
+
+#Désinstallation
+Désinstaller le package en tappant la commande suivante :
+
+    DOS> npm uninstall -g wit-web-server
 
 #Usages
 
 ##Lancer l'application
 Pour lancer l'application avec les paramètres par défaut :
 
-    DOS> node [path]\web-server\app.js
-où `[path]` est le chemin vers le repertoire `web-server\`.
+    DOS> wit-web-server
 
-Avec cette commande, l'application va créer un serveur sur l'addresse `http://localhost:8080/` en ciblant la racine de site web dans le répertoire courant.
+Avec cette commande, l'application va créer un serveur sur l'addresse `http://localhost:8080/` en ciblant la *racine de site web* vers le *répertoire courant*.
 
 
 ##Exécution avec un autre port
-Pour lancer l'application et que le serveur utilise un autre port que `8080`, ajouter `PORT x` où `x` est le nouveau port.
+Pour lancer l'application et pour que le serveur utilise un autre port que celui par défaut `8080`, ajouter `PORT x` où `x` est le nouveau port.
+
 Exemple la commande :
 
-    DOS> node [path]\web-server\app.js PORT 88
-où `[path]` est le chemin vers le repertoire `web-server\`.
+    DOS> wit-web-server PORT 88
 
-Avec cette commande, l'application va créer un serveur accessible à l'adresse `http://localhost:88/` en ciblant la racine de site web dans le répertoire courant.
+Avec cette commande, l'application va créer un serveur accessible à l'adresse `http://localhost:88/` en ciblant la *racine de site web* vers le *répertoire courant*.
 
 ##Exécution avec un autre répertoire cible
-Pour lancer l'application et que le serveur utilise une autre racine que le répertoire courrant, ajouter `BASEDIR x` où `x` est le nouveau chemin **relatif** ou
-**absolu** entre guillemets (`"`).
+Pour lancer l'application et pour que le serveur utilise une autre racine que le répertoire courrant, ajouter `BASEDIR x` à votre commande où `x` est le nouveau chemin *relatif* ou
+*absolu* entre guillemets `"`.
+
 Exemple :
 
-    DOS> node [path]\web-server\app.js BASEDIR "..\rep\httpdocs"
-où `[path]` est le chemin vers le repertoire `web-server\`.
+    DOS> wit-web-server BASEDIR "..\rep\httpdocs"
 
-Avec cette commande, l'application va créer un serveur accessible à l'adresse `http://localhost:8080/` en ciblant la racine de site web dans le répertoire `..\rep\httpdocs\`.
+Avec cette commande, l'application va créer un serveur accessible à l'adresse `http://localhost:8080/` en ciblant la *racine de site web* vers le répertoire `..\rep\httpdocs\`.
 
 ##Arrêt de l'application
 
 Pour arrêter l'application, tapper `Ctrl+C`.
 
 [NodeJS]: http://nodejs.org/
+[npm]: https://npmjs.org/
 
 #A venir
 
-* support des actions?
+ * pouvoir personnaliser des actions.
+ * Ajouter un test de chargement de tous les type-mimes.

@@ -1,7 +1,9 @@
+#!/usr/bin/env node
+
 /**
  * @fileOverview Run web server.
  *
- * VERSION 1.0.0
+ * VERSION 1.1.0
  *
  * run with arguments:
  * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
@@ -29,5 +31,6 @@ if (portIndex !== -1 && (portIndex + 1) < process.argv.length) {
   config.port = port;
 }
 
+// start the web server.
 var httpServer = new HttpServer(config);
 httpServer.start();
