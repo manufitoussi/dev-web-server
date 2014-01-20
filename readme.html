@@ -748,7 +748,7 @@ body .task-list{
 .type-csharp .highlight .sc{
   color:#A31515
 }</style><title>readme</title></head><body><h1>
-<a name="web-server-v100" class="anchor" href="#web-server-v100"><span class="octicon octicon-link"></span></a>WEB SERVER v1.0.0</h1>
+<a name="wit-web-server-v110" class="anchor" href="#wit-web-server-v110"><span class="octicon octicon-link"></span></a>WIT WEB SERVER v1.1.0</h1>
 
 <h2>
 <a name="serveur-web-de-d%C3%A9veloppement" class="anchor" href="#serveur-web-de-d%C3%A9veloppement"><span class="octicon octicon-link"></span></a>Serveur web de développement</h2>
@@ -756,7 +756,9 @@ body .task-list{
 <h1>
 <a name="d%C3%A9finition" class="anchor" href="#d%C3%A9finition"><span class="octicon octicon-link"></span></a>Définition</h1>
 
-<p>Ce dossier contient l'application <a href="http://nodejs.org/">NodeJS</a> permettant de créer un serveur WEB local de développement.</p>
+<p>Ce projet est une application <a href="http://nodejs.org/">NodeJS</a> permettant de créer un serveur WEB local de développement.</p>
+
+<p>Il se trouve sous la forme d'un package <a href="https://npmjs.org/">npm</a>.</p>
 
 <h1>
 <a name="fonctionnalit%C3%A9s" class="anchor" href="#fonctionnalit%C3%A9s"><span class="octicon octicon-link"></span></a>Fonctionnalités</h1>
@@ -768,7 +770,7 @@ en ciblant la racine de site web dans le répertoire courant.</p>
 
 <p>La page par défaut à la racine du site est <code>index.html</code>.</p>
 
-<p>Il supporte l'usage du <code>favicon.ico</code> placé à la racine du site.</p>
+<p>Il supporte l'usage du <code>favicon.ico</code> s'il est placé à la racine du site.</p>
 
 <h2>
 <a name="type-mimes-support%C3%A9s" class="anchor" href="#type-mimes-support%C3%A9s"><span class="octicon octicon-link"></span></a>Type-Mimes supportés</h2>
@@ -806,12 +808,25 @@ en ciblant la racine de site web dans le répertoire courant.</p>
 <a name="environnement-requis" class="anchor" href="#environnement-requis"><span class="octicon octicon-link"></span></a>Environnement requis</h1>
 
 <ul>
-<li>
-<a href="http://nodejs.org/">NodeJS</a> doit être installé sur le système.</li>
+<li>La dernière version de <a href="http://nodejs.org/">NodeJS</a> doit être installé sur le système.</li>
 </ul><h1>
 <a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h1>
 
-<p>Placer tout simplement le répertoire <code>web-server\</code> dans le répertoire de votre choix de votre projet.</p>
+<ol>
+<li>Cloner ce projet dans le répertoire de votre choix.</li>
+<li>Placer vous dans ce répertoire et installer le package dans votre système.</li>
+</ol><p>Tapper :</p>
+
+<pre><code>DOS&gt; npm install -g
+</code></pre>
+
+<h1>
+<a name="d%C3%A9sinstallation" class="anchor" href="#d%C3%A9sinstallation"><span class="octicon octicon-link"></span></a>Désinstallation</h1>
+
+<p>Désinstaller le package en tappant la commande suivante :</p>
+
+<pre><code>DOS&gt; npm uninstall -g wit-web-server
+</code></pre>
 
 <h1>
 <a name="usages" class="anchor" href="#usages"><span class="octicon octicon-link"></span></a>Usages</h1>
@@ -821,39 +836,35 @@ en ciblant la racine de site web dans le répertoire courant.</p>
 
 <p>Pour lancer l'application avec les paramètres par défaut :</p>
 
-<pre><code>DOS&gt; node [path]\web-server\app.js
+<pre><code>DOS&gt; wit-web-server
 </code></pre>
 
-<p>où <code>[path]</code> est le chemin vers le repertoire <code>web-server\</code>.</p>
-
-<p>Avec cette commande, l'application va créer un serveur sur l'addresse <code>http://localhost:8080/</code> en ciblant la racine de site web dans le répertoire courant.</p>
+<p>Avec cette commande, l'application va créer un serveur sur l'addresse <code>http://localhost:8080/</code> en ciblant la <em>racine de site web</em> vers le <em>répertoire courant</em>.</p>
 
 <h2>
 <a name="ex%C3%A9cution-avec-un-autre-port" class="anchor" href="#ex%C3%A9cution-avec-un-autre-port"><span class="octicon octicon-link"></span></a>Exécution avec un autre port</h2>
 
-<p>Pour lancer l'application et que le serveur utilise un autre port que <code>8080</code>, ajouter <code>PORT x</code> où <code>x</code> est le nouveau port.
-Exemple la commande :</p>
+<p>Pour lancer l'application et pour que le serveur utilise un autre port que celui par défaut <code>8080</code>, ajouter <code>PORT x</code> où <code>x</code> est le nouveau port.</p>
 
-<pre><code>DOS&gt; node [path]\web-server\app.js PORT 88
+<p>Exemple la commande :</p>
+
+<pre><code>DOS&gt; wit-web-server PORT 88
 </code></pre>
 
-<p>où <code>[path]</code> est le chemin vers le repertoire <code>web-server\</code>.</p>
-
-<p>Avec cette commande, l'application va créer un serveur accessible à l'adresse <code>http://localhost:88/</code> en ciblant la racine de site web dans le répertoire courant.</p>
+<p>Avec cette commande, l'application va créer un serveur accessible à l'adresse <code>http://localhost:88/</code> en ciblant la <em>racine de site web</em> vers le <em>répertoire courant</em>.</p>
 
 <h2>
 <a name="ex%C3%A9cution-avec-un-autre-r%C3%A9pertoire-cible" class="anchor" href="#ex%C3%A9cution-avec-un-autre-r%C3%A9pertoire-cible"><span class="octicon octicon-link"></span></a>Exécution avec un autre répertoire cible</h2>
 
-<p>Pour lancer l'application et que le serveur utilise une autre racine que le répertoire courrant, ajouter <code>BASEDIR x</code> où <code>x</code> est le nouveau chemin <strong>relatif</strong> ou
-<strong>absolu</strong> entre guillemets (<code>"</code>).
-Exemple :</p>
+<p>Pour lancer l'application et pour que le serveur utilise une autre racine que le répertoire courrant, ajouter <code>BASEDIR x</code> à votre commande où <code>x</code> est le nouveau chemin <em>relatif</em> ou
+<em>absolu</em> entre guillemets <code>"</code>.</p>
 
-<pre><code>DOS&gt; node [path]\web-server\app.js BASEDIR "..\rep\httpdocs"
+<p>Exemple :</p>
+
+<pre><code>DOS&gt; wit-web-server BASEDIR "..\rep\httpdocs"
 </code></pre>
 
-<p>où <code>[path]</code> est le chemin vers le repertoire <code>web-server\</code>.</p>
-
-<p>Avec cette commande, l'application va créer un serveur accessible à l'adresse <code>http://localhost:8080/</code> en ciblant la racine de site web dans le répertoire <code>..\rep\httpdocs\</code>.</p>
+<p>Avec cette commande, l'application va créer un serveur accessible à l'adresse <code>http://localhost:8080/</code> en ciblant la <em>racine de site web</em> vers le répertoire <code>..\rep\httpdocs\</code>.</p>
 
 <h2>
 <a name="arr%C3%AAt-de-lapplication" class="anchor" href="#arr%C3%AAt-de-lapplication"><span class="octicon octicon-link"></span></a>Arrêt de l'application</h2>
@@ -864,5 +875,6 @@ Exemple :</p>
 <a name="a-venir" class="anchor" href="#a-venir"><span class="octicon octicon-link"></span></a>A venir</h1>
 
 <ul>
-<li>support des actions?</li>
+<li>pouvoir personnaliser des actions.</li>
+<li>Ajouter un test de chargement de tous les type-mimes.</li>
 </ul></body></html>
