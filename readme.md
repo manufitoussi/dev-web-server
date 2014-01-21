@@ -18,6 +18,8 @@ La page par défaut à la racine du site est `index.html`.
 
 Il supporte l'usage du `favicon.ico` s'il est placé à la racine du site.
 
+Les requêtes d'URL sont supportées.
+
 ##Type-Mimes supportés
 Voici ci-dessous la liste des extensions et type-mimes supportés par l'application :
 
