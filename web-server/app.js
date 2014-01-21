@@ -10,6 +10,8 @@
  * - PORT x: port of the wev server (default: 8080).
  */
 
+var VERSION = "1.1.0";
+
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
 
@@ -30,6 +32,8 @@ if (portIndex !== -1 && (portIndex + 1) < process.argv.length) {
   var port = process.argv[portIndex + 1];
   config.port = port;
 }
+
+console.log('WIT WEB SERVER - v' + VERSION);
 
 // start the web server.
 var httpServer = new HttpServer(config);
