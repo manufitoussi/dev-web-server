@@ -2,6 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
+var url = require('url');
 
 var ContentTypes = require('./content-types.js');
 var createActions = require('./actions.js');
@@ -9,7 +10,7 @@ var createActions = require('./actions.js');
 var DEFAULT = {
   domain: 'localhost',
   port: '8080',
-  baseDir: '.',//../httpdocs',
+  baseDir: '.',
   root: '/index.html',
   isDebug: false
 };
@@ -23,9 +24,7 @@ var HttpServer = function (config) {
   "use strict";
   config = config || {};
   var
-    isDebug = config.isDebug === undefined ?
-        DEFAULT.isDebug
-    : config.isDebug,
+    isDebug = config.isDebug === undefined ? DEFAULT.isDebug : config.isDebug,
     domain = config.domain || DEFAULT.domain,
     port = config.port || DEFAULT.port,
     baseDir = config.baseDir || DEFAULT.baseDir,
@@ -50,22 +49,38 @@ var HttpServer = function (config) {
       console.log('method: ' + req.method);
       console.log('url: ' + req.url);
 
+      var render = function (askedUrl) {
 
-      var render = function (url) {
-
-        if (url === '/') {
-          url = root;
+        var parsedUrl = url.parse(askedUrl);
+        if(parsedUrl.query) {
+          console.log('query: ' + parsedUrl.query);
         }
 
-        var filePath = baseDir + url;
+        if (parsedUrl.pathname === '/') {
+          parsedUrl.pathname = root;
+        }
+
+        // full path of the file
+        var filePath = path.resolve(baseDir, '.' + parsedUrl.pathname);
+        console.log('filePath: ' + filePath);
+
+        // file name with extension
+        var baseFile = path.basename(filePath);
+        console.log('base: ' + baseFile);
+
+        // file extension
         var fileExt = path.extname(filePath);
         console.log('ext: ' + fileExt);
 
+        // the full path of directory that contains the file.
+        var dirFile = path.dirname(filePath);
+        console.log('dir: ' + dirFile);
+
         if (fileExt === '') {
-          console.log('Action: ' + url);
-          var words = url.split('/');
+          console.log('Action: ' + askedUrl);
+          var words = askedUrl.split('/');
           var sessionKey = null;
-          var actionName = url;
+          var actionName = askedUrl;
           if (words.length > 2) {
             sessionKey = words[1];
             words.shift();
@@ -116,7 +131,7 @@ var HttpServer = function (config) {
             return;
           }
 
-          html.error(url + ' not found.', res, 404);
+          html.error(askedUrl + ' not found.', res, 404);
           return;
         });
       };
