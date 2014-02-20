@@ -3,10 +3,16 @@ var Repository = {
 };
 
 module.exports = {
-  '/exemple': function (req, res, params, sendSuccess, sendError) {
+
+  '/example': function (req, res, params, sendSuccess, sendError) {
     sendSuccess(req, res, {
       test: 'coucou',
-      count: Repository.count++
+      count: Repository.count++,
+      params: params
     });
+  },
+
+  '/exampleError': function (req, res, params, sendSuccess, sendError) {
+    sendError(req, res, 401, "erreur d'authentification");
   }
 };

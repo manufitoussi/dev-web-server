@@ -83,7 +83,7 @@ var HttpServer = function (config) {
 
         if (fileExt === '') {
           // no extension : this is an action endpoint!
-          service.runEndPoint(req, res, askedUrl);
+          service.runEndPoint(req, res, parsedUrl.pathname) ;
           return;
         }
 

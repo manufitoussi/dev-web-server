@@ -2,7 +2,7 @@
   "author": "Emmanuel Fitoussi - WIT SA",
   "name": "wit-web-server",
   "description": "A Node web server.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "./web-server/app.js",
   "bin": {
     "wit-web-server" : "./web-server/app.js"
