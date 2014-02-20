@@ -748,7 +748,7 @@ body .task-list{
 .type-csharp .highlight .sc{
   color:#A31515
 }</style><title>readme</title></head><body><h1>
-<a name="wit-web-server-v110" class="anchor" href="#wit-web-server-v110"><span class="octicon octicon-link"></span></a>WIT WEB SERVER v1.1.0</h1>
+<a name="wit-web-server-v120" class="anchor" href="#wit-web-server-v120"><span class="octicon octicon-link"></span></a>WIT WEB SERVER v1.2.0</h1>
 
 <h2>
 <a name="serveur-web-de-d%C3%A9veloppement" class="anchor" href="#serveur-web-de-d%C3%A9veloppement"><span class="octicon octicon-link"></span></a>Serveur web de développement</h2>
@@ -766,11 +766,18 @@ body .task-list{
 <p>Cette application va créer un serveur sur l'addresse <code>http://localhost:8080/</code>
 en ciblant la racine de site web dans le répertoire courant.</p>
 
-<p>Il est possible de choisir un autre port, et un autre répertoire racine du site web.</p>
+<p>Il est possible de spécifier :</p>
 
-<p>La page par défaut à la racine du site est <code>index.html</code>.</p>
+<ul>
+<li>un port,</li>
+<li>un répertoire racine du site web,</li>
+<li>un délai de requête</li>
+<li>un ensemble de terminaisons de service <code>AJAX</code>.</li>
+</ul><p>La page par défaut à la racine du site est <code>index.html</code>.</p>
 
 <p>Il supporte l'usage du <code>favicon.ico</code> s'il est placé à la racine du site.</p>
+
+<p>Les requêtes <code>POST</code> et <code>GET</code> sont supportées.</p>
 
 <h2>
 <a name="type-mimes-support%C3%A9s" class="anchor" href="#type-mimes-support%C3%A9s"><span class="octicon octicon-link"></span></a>Type-Mimes supportés</h2>
@@ -785,23 +792,23 @@ en ciblant la racine de site web dans le répertoire courant.</p>
 <tbody>
 <tr>
 <td><code>.html</code></td>
-<td><code>text/html</code></td>
+<td>text/html</td>
 </tr>
 <tr>
 <td><code>.js</code></td>
-<td><code>text/javascript</code></td>
+<td>text/javascript</td>
 </tr>
 <tr>
 <td><code>.css</code></td>
-<td><code>text/css</code></td>
+<td>text/css</td>
 </tr>
 <tr>
 <td><code>.less</code></td>
-<td><code>text/css</code></td>
+<td>text/css</td>
 </tr>
 <tr>
 <td><code>.json</code></td>
-<td><code>text/json</code></td>
+<td>text/json</td>
 </tr>
 </tbody>
 </table><h1>
@@ -817,7 +824,7 @@ en ciblant la racine de site web dans le répertoire courant.</p>
 <li>Placer vous dans ce répertoire et installer le package dans votre système.</li>
 </ol><p>Tapper :</p>
 
-<pre><code>DOS&gt; npm install -g
+<pre lang="dos"><code>npm install -g
 </code></pre>
 
 <h1>
@@ -825,56 +832,212 @@ en ciblant la racine de site web dans le répertoire courant.</p>
 
 <p>Désinstaller le package en tappant la commande suivante :</p>
 
-<pre><code>DOS&gt; npm uninstall -g wit-web-server
+<pre lang="dos"><code>npm uninstall -g wit-web-server
 </code></pre>
 
 <h1>
 <a name="usages" class="anchor" href="#usages"><span class="octicon octicon-link"></span></a>Usages</h1>
 
 <h2>
-<a name="lancer-lapplication" class="anchor" href="#lancer-lapplication"><span class="octicon octicon-link"></span></a>Lancer l'application</h2>
+<a name="lancer-le-serveur" class="anchor" href="#lancer-le-serveur"><span class="octicon octicon-link"></span></a>Lancer le serveur</h2>
 
-<p>Pour lancer l'application avec les paramètres par défaut :</p>
+<p>Pour lancer le serveur avec les paramètres par défaut :</p>
 
-<pre><code>DOS&gt; wit-web-server
+<pre lang="dos"><code>wit-web-server
 </code></pre>
 
-<p>Avec cette commande, l'application va créer un serveur sur l'addresse <code>http://localhost:8080/</code> en ciblant la <em>racine de site web</em> vers le <em>répertoire courant</em>.</p>
+<p>Avec cette commande, l'application va créer un serveur :</p>
 
-<h2>
-<a name="ex%C3%A9cution-avec-un-autre-port" class="anchor" href="#ex%C3%A9cution-avec-un-autre-port"><span class="octicon octicon-link"></span></a>Exécution avec un autre port</h2>
+<ul>
+<li>sur l'addresse <code>http://localhost:8080/</code>
+</li>
+<li>en ciblant la <em>racine de site web</em> vers le <em>répertoire courant</em>
+</li>
+<li>sans délai de requête</li>
+<li>sans terminaison de service <code>AJAX</code>.</li>
+</ul><h2>
+<a name="les-param%C3%A8tres" class="anchor" href="#les-param%C3%A8tres"><span class="octicon octicon-link"></span></a>Les paramètres</h2>
 
-<p>Pour lancer l'application et pour que le serveur utilise un autre port que celui par défaut <code>8080</code>, ajouter <code>PORT x</code> où <code>x</code> est le nouveau port.</p>
+<table>
+<thead><tr>
+<th>Paramètre</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>PORT</code></td>
+<td>Choisir un port (défaut : <code>8080</code>)</td>
+</tr>
+<tr>
+<td><code>BASEDIR</code></td>
+<td>Chemin <em>relatif</em> ou <em>absolu</em> vers la racine du domaine (défaut : <em>répertoire courant</em>)</td>
+</tr>
+<tr>
+<td><code>DELAY</code></td>
+<td>Délai en milliseconde avant chaque réponse <code>AJAX</code> du serveur (défaut : <code>0</code> ms)</td>
+</tr>
+<tr>
+<td><code>ENDPOINTS</code></td>
+<td>Chemin <em>relatif</em> ou <em>absolu</em> vers le fichier contenant les terminaisons de services AJAX <em>(voir sa définition)</em>
+</td>
+</tr>
+</tbody>
+</table><h2>
+<a name="exemples" class="anchor" href="#exemples"><span class="octicon octicon-link"></span></a>Exemples</h2>
 
-<p>Exemple la commande :</p>
-
-<pre><code>DOS&gt; wit-web-server PORT 88
+<pre lang="dos"><code>wit-web-server PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
 </code></pre>
 
-<p>Avec cette commande, l'application va créer un serveur accessible à l'adresse <code>http://localhost:88/</code> en ciblant la <em>racine de site web</em> vers le <em>répertoire courant</em>.</p>
+<p>Cette commande lancera un serveur :</p>
 
-<h2>
-<a name="ex%C3%A9cution-avec-un-autre-r%C3%A9pertoire-cible" class="anchor" href="#ex%C3%A9cution-avec-un-autre-r%C3%A9pertoire-cible"><span class="octicon octicon-link"></span></a>Exécution avec un autre répertoire cible</h2>
+<ul>
+<li>accessible à l'adresse <code>http://localhost:1234/</code>
+</li>
+<li>en ciblant la <em>racine de site web</em> vers le répertoire <code>..\rep\httpdocs\</code>
+</li>
+<li>avec un délai de <code>2000</code> ms avant chaque réponse <code>AJAX</code>
+</li>
+<li>des définitions de terminaisons de services <code>AJAX</code> définit dans le fichier au chemin <code>..\rep\server\my-endpoints.js</code>.</li>
+</ul><h2>
+<a name="d%C3%A9finition-des-terminaisons-de-service-ajax" class="anchor" href="#d%C3%A9finition-des-terminaisons-de-service-ajax"><span class="octicon octicon-link"></span></a>Définition des terminaisons de service <code>AJAX</code>
+</h2>
 
-<p>Pour lancer l'application et pour que le serveur utilise une autre racine que le répertoire courrant, ajouter <code>BASEDIR x</code> à votre commande où <code>x</code> est le nouveau chemin <em>relatif</em> ou
-<em>absolu</em> entre guillemets <code>"</code>.</p>
+<p>Des terminaisons de service <code>AJAX</code> peuvent être définis dans un fichier de script <a href="http://nodejs.org/">NodeJS</a>. Ce dernier doit renvoyer un objet <code>JavaScript</code> contenant les définitions des terminaisons sous la forme d'un dictionnaire. La clef est l'<code>URL</code> de la terminaison, la valeur est la méthode à exécuter.</p>
 
-<p>Exemple :</p>
+<h3>
+<a name="la-m%C3%A9thode-de-terminaison" class="anchor" href="#la-m%C3%A9thode-de-terminaison"><span class="octicon octicon-link"></span></a>La méthode de terminaison</h3>
 
-<pre><code>DOS&gt; wit-web-server BASEDIR "..\rep\httpdocs"
-</code></pre>
+<p>La méthode de terminaison permet de définir la requête. Elle prend comme argument :</p>
 
-<p>Avec cette commande, l'application va créer un serveur accessible à l'adresse <code>http://localhost:8080/</code> en ciblant la <em>racine de site web</em> vers le répertoire <code>..\rep\httpdocs\</code>.</p>
+<table>
+<thead><tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>req</td>
+<td><code>Request</code></td>
+<td>Objet de requête <a href="http://nodejs.org/">NodeJS</a>
+</td>
+</tr>
+<tr>
+<td>res</td>
+<td><code>Response</code></td>
+<td>Objet de réponse <a href="http://nodejs.org/">NodeJS</a>
+</td>
+</tr>
+<tr>
+<td>params</td>
+<td><code>Object</code></td>
+<td>Objet d'argument de la requête (pris depuis le <code>body</code> ou la <code>querystring</code>)</td>
+</tr>
+<tr>
+<td>sendSuccess</td>
+<td><code>Function</code></td>
+<td>Fonction callback à appeler lors du succès de la requête</td>
+</tr>
+<tr>
+<td>sendError</td>
+<td><code>Function</code></td>
+<td>Fonction callback à appeler lors de l'échec de la requête</td>
+</tr>
+</tbody>
+</table><h4>
+<a name="le-callback-de-succ%C3%A8s" class="anchor" href="#le-callback-de-succ%C3%A8s"><span class="octicon octicon-link"></span></a>Le callback de succès</h4>
+
+<p>La méthode <code>sendSuccess</code> permet de renvoyer une réponse de succès contenant l'objet resultat de la requête. Elle prend comme argument :</p>
+
+<table>
+<thead><tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>req</td>
+<td><code>Request</code></td>
+<td>Objet de requête <a href="http://nodejs.org/">NodeJS</a>
+</td>
+</tr>
+<tr>
+<td>res</td>
+<td><code>Response</code></td>
+<td>Objet de réponse <a href="http://nodejs.org/">NodeJS</a>
+</td>
+</tr>
+<tr>
+<td>result</td>
+<td><code>Object</code></td>
+<td>Objet de résultat de la requête</td>
+</tr>
+</tbody>
+</table><h4>
+<a name="le-callback-derreur-ou-d%C3%A9chec" class="anchor" href="#le-callback-derreur-ou-d%C3%A9chec"><span class="octicon octicon-link"></span></a>Le callback d'erreur ou d'échec</h4>
+
+<p>La méthode <code>sendError</code> permet de renvoyer une réponse d'échec contenant l'objet d'erreur en résultat de la requête. Ell prend comme argument :</p>
+
+<table>
+<thead><tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>req</td>
+<td><code>Request</code></td>
+<td>Objet de requête <a href="http://nodejs.org/">NodeJS</a>
+</td>
+</tr>
+<tr>
+<td>res</td>
+<td><code>Response</code></td>
+<td>Objet de réponse <a href="http://nodejs.org/">NodeJS</a>
+</td>
+</tr>
+<tr>
+<td>httpCode</td>
+<td><code>Numeric</code></td>
+<td>Code <code>HTTP</code> de réponse su serveur</td>
+</tr>
+<tr>
+<td>message</td>
+<td><code>string</code></td>
+<td>Message text de l'erreur</td>
+</tr>
+<tr>
+<td>result</td>
+<td><code>Object</code></td>
+<td>Objet de résultat de la requête</td>
+</tr>
+</tbody>
+</table><p>Exemple :</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">Repository</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">count</span><span class="o">:</span><span class="mi">0</span>
+<span class="p">};</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">'/example'</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">params</span><span class="p">,</span> <span class="nx">sendSuccess</span><span class="p">,</span> <span class="nx">sendError</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">sendSuccess</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="p">{</span>
+      <span class="nx">test</span><span class="o">:</span> <span class="s1">'coucou'</span><span class="p">,</span>
+      <span class="nx">count</span><span class="o">:</span> <span class="nx">Repository</span><span class="p">.</span><span class="nx">count</span><span class="o">++</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+  <span class="s1">'/exampleError'</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">params</span><span class="p">,</span> <span class="nx">sendSuccess</span><span class="p">,</span> <span class="nx">sendError</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">sendError</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="mi">401</span><span class="p">,</span> <span class="s2">"erreur d'authentification"</span><span class="p">);</span>
+
+    <span class="c1">// Le résultat de cet requête sera : { code: 401, message: "erreur d'authentification"}.</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+</pre></div>
 
 <h2>
 <a name="arr%C3%AAt-de-lapplication" class="anchor" href="#arr%C3%AAt-de-lapplication"><span class="octicon octicon-link"></span></a>Arrêt de l'application</h2>
 
-<p>Pour arrêter l'application, tapper <code>Ctrl+C</code>.</p>
-
-<h1>
-<a name="a-venir" class="anchor" href="#a-venir"><span class="octicon octicon-link"></span></a>A venir</h1>
-
-<ul>
-<li>pouvoir personnaliser des actions.</li>
-<li>Ajouter un test de chargement de tous les type-mimes.</li>
-</ul></body></html>
+<p>Pour arrêter l'application, tapper <code>Ctrl+C</code>.</p></body></html>

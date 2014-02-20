@@ -5,14 +5,16 @@ var util = require('util');
 var url = require('url');
 
 var ContentTypes = require('./content-types.js');
-var createActions = require('./actions.js');
+var createActions = require('./service.js');
 
 var DEFAULT = {
   domain: 'localhost',
   port: '8080',
   baseDir: '.',
   root: '/index.html',
-  isDebug: false
+  isDebug: false,
+  endPointsFilePath: null,
+  delay: 0
 };
 
 /**
@@ -23,13 +25,16 @@ var DEFAULT = {
 var HttpServer = function (config) {
   "use strict";
   config = config || {};
-  var
-    isDebug = config.isDebug === undefined ? DEFAULT.isDebug : config.isDebug,
+  var isDebug = config.isDebug === undefined ? DEFAULT.isDebug : config.isDebug,
     domain = config.domain || DEFAULT.domain,
     port = config.port || DEFAULT.port,
     baseDir = config.baseDir || DEFAULT.baseDir,
     root = config.root || DEFAULT.root,
-    actions = createActions({isDebug: isDebug, delay: config.delay});
+    endPointsFilePath = config.endPointsFilePath || DEFAULT.endPointsFilePath,
+    service = createActions({
+      delay: config.delay || DEFAULT.delay,
+      endPoints: endPointsFilePath ? require(endPointsFilePath) : {}
+    });
 
   var html = {
     error: function (errMsg, res, opt_code) {
@@ -52,7 +57,7 @@ var HttpServer = function (config) {
       var render = function (askedUrl) {
 
         var parsedUrl = url.parse(askedUrl);
-        if(parsedUrl.query) {
+        if (parsedUrl.query) {
           console.log('query: ' + parsedUrl.query);
         }
 
@@ -77,43 +82,12 @@ var HttpServer = function (config) {
         console.log('dir: ' + dirFile);
 
         if (fileExt === '') {
-          console.log('Action: ' + askedUrl);
-          var words = askedUrl.split('/');
-          var sessionKey = null;
-          var actionName = askedUrl;
-          if (words.length > 2) {
-            sessionKey = words[1];
-            words.shift();
-            words.shift();
-            actionName = '/' + words.join('/');
-          }
-
-          console.log('sessionKey:', sessionKey);
-          console.log('actionName:', actionName);
-
-          var action = actions.actions[actionName];
-          if (action === undefined) {
-            html.error('action not found', res, 404);
-          } else {
-            if (req.method === 'POST') {
-              var body = '';
-              req.on('data', function (data) {
-                body += data;
-              });
-              req.on('end', function () {
-                req.body = body;
-                console.log('Body: ' + req.body);
-                action(req, res, sessionKey);
-              });
-
-            } else {
-              action(req, res, sessionKey);
-            }
-          }
-
+          // no extension : this is an action endpoint!
+          service.runEndPoint(req, res, parsedUrl.pathname) ;
           return;
         }
 
+        // displays the requested file:
         fs.exists(filePath, function (exists) {
           if (exists) {
             fs.readFile(filePath, function (err, file) {
@@ -145,8 +119,7 @@ var HttpServer = function (config) {
   };
   return {
     start: start,
-    actions: actions,
-    repository: actions.repository
+    service: service
   };
 };
 
