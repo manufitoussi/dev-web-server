@@ -1,4 +1,4 @@
-WIT WEB SERVER v1.1.0
+WIT WEB SERVER v1.2.0
 =====================
 Serveur web de développement
 ----------------------------
@@ -136,14 +136,14 @@ var Repository = {
 };
 
 module.exports = {
-  '/exemple': function (req, res, params, sendSuccess, sendError) {
+  '/example': function (req, res, params, sendSuccess, sendError) {
     sendSuccess(req, res, {
       test: 'coucou',
       count: Repository.count++
     });
   },
 
-  '/exempleRequete': function (req, res, params, sendSuccess, sendError) {
+  '/exampleError': function (req, res, params, sendSuccess, sendError) {
     sendError(req, res, 401, "erreur d'authentification");
 
     // Le résultat de cet requête sera : { code: 401, message: "erreur d'authentification"}.
