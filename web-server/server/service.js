@@ -85,7 +85,7 @@ var Service = function (config) {
         req.on('end', function () {
           req.body = body;
           console.log('Body: ' + req.body);
-          endPoint(req, res, req.body);
+          endPoint(req, res, req.body, sendSuccess, sendError);
         });
         return;
       }
