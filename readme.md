@@ -1,4 +1,4 @@
-WIT WEB SERVER v1.2.0
+WIT WEB SERVER v1.3.0
 =====================
 Serveur web de développement
 ----------------------------
@@ -13,6 +13,7 @@ Cette application va créer un serveur sur l'addresse `http://localhost:8080/`
 en ciblant la racine de site web dans le répertoire courant.
 
 Il est possible de spécifier :
+- un domaine,
 - un port,
 - un répertoire racine du site web,
 - un délai de requête
@@ -75,6 +76,7 @@ Avec cette commande, l'application va créer un serveur :
 
 | Paramètre   | Description      |
 |------------ | ---------------- |
+| `DOMAIN`      |  Choisir une adresse de domaine (défaut : `localhost`) |
 | `PORT`      |  Choisir un port (défaut : `8080`) |
 | `BASEDIR`   |  Chemin *relatif* ou *absolu* vers la racine du domaine (défaut : *répertoire courant*) |
 | `DELAY`     |  Délai en milliseconde avant chaque réponse `AJAX` du serveur (défaut : `0` ms) |
@@ -82,10 +84,10 @@ Avec cette commande, l'application va créer un serveur :
 
 ## Exemples
 ```dos
-wit-web-server PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
+wit-web-server DOMAIN mon-domain.fr PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
 ```
 Cette commande lancera un serveur :
-- accessible à l'adresse `http://localhost:1234/`
+- accessible à l'adresse `http://mon-domain.fr:1234/`
 - en ciblant la *racine de site web* vers le répertoire `..\rep\httpdocs\`
 - avec un délai de `2000` ms avant chaque réponse `AJAX`
 - des définitions de terminaisons de services `AJAX` définit dans le fichier au chemin `..\rep\server\my-endpoints.js`.

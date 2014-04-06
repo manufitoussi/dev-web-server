@@ -3,7 +3,7 @@
 /**
  * @fileOverview Run web server.
  *
- * VERSION 1.1.0
+ * VERSION 1.3.0
  *
  * run with arguments:
  * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
@@ -12,7 +12,7 @@
  * - DELAY x: delay in ms before response (default: 0).
  */
 
-var VERSION = "1.2.0";
+var VERSION = "1.3.0";
 
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
@@ -34,6 +34,13 @@ var portIndex = process.argv.indexOf('PORT');
 if (portIndex !== -1 && (portIndex + 1) < process.argv.length) {
   var port = process.argv[portIndex + 1];
   config.port = port;
+}
+
+// apply DOMAIN argument if present in the command line.
+var domainIndex = process.argv.indexOf('DOMAIN');
+if (domainIndex !== -1 && (domainIndex + 1) < process.argv.length) {
+  var domain = process.argv[domainIndex + 1];
+  config.domain = domain;
 }
 
 // apply DELAY argument if present in the command line.
