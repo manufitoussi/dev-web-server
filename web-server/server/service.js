@@ -55,11 +55,17 @@ var Service = function (config) {
    * @param  {Response} res
    * @param  {Object} result
    */
-  var sendSuccess = function (req, res, result) {
-    res.writeHead(200, {
-      "Content-Type": ContentTypes['.json']
-    });
-    res.end(JSON.stringify(result), 'utf-8');
+  var sendSuccess = function (req, res, result, isJSONP, jsonpCallback) {
+    isJSONP = isJSONP === undefined ? false : isJSONP;
+    if (!isJSONP) {
+      res.writeHead(200, {
+        "Content-Type": ContentTypes['.json']
+      });
+      res.end(JSON.stringify(result), 'utf-8');
+    } else {
+      res.writeHead(200);
+      res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
+    }
   };
 
   /**

@@ -117,6 +117,8 @@ La méthode `sendSuccess` permet de renvoyer une réponse de succès contenant l
 | req | `Request` | Objet de requête [NodeJS] |
 | res | `Response` | Objet de réponse [NodeJS] |
 | result | `Object` | Objet de résultat de la requête |
+| isJSONP | 'boolean' | jsonp activé |
+| jsonpCallback | 'string' | nom de la méthode de callbacj jsonp |
 
 #### Le callback d'erreur ou d'échec
 
