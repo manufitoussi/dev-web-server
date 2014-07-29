@@ -1,4 +1,4 @@
-WIT WEB SERVER v1.3.0
+WIT WEB SERVER v1.4.0
 =====================
 Serveur web de développement
 ----------------------------
@@ -46,14 +46,15 @@ Voici ci-dessous la liste des extensions et type-mimes supportés par l'applicat
 2. Placer vous dans ce répertoire et installer le package dans votre système.
 
 Tapper :
-```dos
+
+```console
 npm install -g
 ```
 
 # Désinstallation
 Désinstaller le package en tappant la commande suivante :
 
-```dos
+```console
 npm uninstall -g wit-web-server
 ```
 
@@ -62,7 +63,7 @@ npm uninstall -g wit-web-server
 ## Lancer le serveur
 Pour lancer le serveur avec les paramètres par défaut :
 
-```dos
+```console
 wit-web-server
 ```
 
@@ -83,7 +84,7 @@ Avec cette commande, l'application va créer un serveur :
 | `ENDPOINTS` |  Chemin *relatif* ou *absolu* vers le fichier contenant les terminaisons de services AJAX *(voir sa définition)* |
 
 ## Exemples
-```dos
+```console
 wit-web-server DOMAIN mon-domain.fr PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
 ```
 Cette commande lancera un serveur :
@@ -117,6 +118,8 @@ La méthode `sendSuccess` permet de renvoyer une réponse de succès contenant l
 | req | `Request` | Objet de requête [NodeJS] |
 | res | `Response` | Objet de réponse [NodeJS] |
 | result | `Object` | Objet de résultat de la requête |
+| isJSONP | 'boolean' | jsonp activé |
+| jsonpCallback | 'string' | nom de la méthode de callbacj jsonp |
 
 #### Le callback d'erreur ou d'échec
 

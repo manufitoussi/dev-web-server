@@ -3,7 +3,7 @@
 /**
  * @fileOverview Run web server.
  *
- * VERSION 1.3.0
+ * VERSION 1.4.0
  *
  * run with arguments:
  * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
@@ -12,7 +12,7 @@
  * - DELAY x: delay in ms before response (default: 0).
  */
 
-var VERSION = "1.3.0";
+var VERSION = "1.4.0";
 
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
@@ -57,7 +57,7 @@ if (endPointsFilePathIndex !== -1 && (endPointsFilePathIndex + 1) < process.argv
   config.endPointsFilePath = path.resolve(process.cwd(), endPointsFilePath);
 }
 
-console.log('WIT WEB SERVER - v' + VERSION);
+console.log('WIT WEB SERVER'.bold.green, '- v' + VERSION);
 
 // start the web server.
 var httpServer = new HttpServer(config);

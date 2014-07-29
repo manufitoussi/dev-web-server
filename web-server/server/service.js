@@ -33,7 +33,7 @@ var Service = function (config) {
    * @param  {[type]} result
    */
   var sendError = function (req, res, httpCode, message, result) {
-    console.error(message);
+    console.error('[ERROR]'.red, httpCode.toString().bold.red, message.red);
     if (!result) {
       result = {};
     }
@@ -55,11 +55,17 @@ var Service = function (config) {
    * @param  {Response} res
    * @param  {Object} result
    */
-  var sendSuccess = function (req, res, result) {
-    res.writeHead(200, {
-      "Content-Type": ContentTypes['.json']
-    });
-    res.end(JSON.stringify(result), 'utf-8');
+  var sendSuccess = function (req, res, result, isJSONP, jsonpCallback) {
+    isJSONP = isJSONP === undefined ? false : isJSONP;
+    if (!isJSONP) {
+      res.writeHead(200, {
+        "Content-Type": ContentTypes['.json']
+      });
+      res.end(JSON.stringify(result), 'utf-8');
+    } else {
+      res.writeHead(200);
+      res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
+    }
   };
 
   /**
@@ -69,7 +75,7 @@ var Service = function (config) {
    * @param  {String} endPointName
    */
   var runEndPoint = function (req, res, endPointName) {
-    console.log('Endpoint: ' + endPointName);
+    console.log('Endpoint: '.cyan + endPointName.cyan);
     setTimeout(function () {
       var endPoint = endPoints[endPointName];
       if (endPoint === undefined) {
@@ -84,7 +90,7 @@ var Service = function (config) {
         });
         req.on('end', function () {
           req.body = body;
-          console.log('Body: ' + req.body);
+          console.log('Body: '.bold + req.body);
           endPoint(req, res, req.body, sendSuccess, sendError);
         });
         return;
