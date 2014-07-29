@@ -3,6 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var util = require('util');
 var url = require('url');
+var colors = require('colors');
 
 var ContentTypes = require('./content-types.js');
 var createActions = require('./service.js');
@@ -39,7 +40,7 @@ var HttpServer = function (config) {
   var html = {
     error: function (errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
-      console.error('[ERROR]', opt_code, errMsg);
+      console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
       res.writeHead(opt_code, {
         "Content-Type": ContentTypes['.html']
@@ -51,8 +52,9 @@ var HttpServer = function (config) {
   var start = function () {
     http.createServer(function (req, res) {
       console.log('------------------------');
-      console.log('method: ' + req.method);
-      console.log('url: ' + req.url);
+      console.log('time:', (new Date()).toISOString());
+      console.log('method: ' + req.method.yellow);
+      console.log('url: ' + req.url.toString().bold.green);
 
       var render = function (askedUrl) {
 
@@ -83,7 +85,7 @@ var HttpServer = function (config) {
 
         if (fileExt === '') {
           // no extension : this is an action endpoint!
-          service.runEndPoint(req, res, parsedUrl.pathname) ;
+          service.runEndPoint(req, res, parsedUrl.pathname);
           return;
         }
 
@@ -114,7 +116,7 @@ var HttpServer = function (config) {
 
     }).listen(port, domain);
 
-    console.log(util.format('Server running at http://%s:%s/', domain, port));
+    console.log('Server running at', util.format('http://%s:%s/'.yellow.underline, domain, port));
     console.log('Type [Ctrl+C] to stop the server.');
   };
   return {
