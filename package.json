@@ -5,7 +5,7 @@
   "repository": {
     "url": "https://github.com/manufitoussi/dev-web-server"
   },
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "./web-server/app.js",
   "bin": {
     "dev-web-server": "./web-server/app.js"
@@ -18,9 +18,14 @@
   },
   "keywords": [
     "server",
+    "webserver",
+    "web-server",
     "http",
-    "https",
+    "http-server",
+    "httpserver",
     "endpoint",
+    "API",
+    "mock",
     "web"
   ],
   "license": "BSD"
