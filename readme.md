@@ -48,7 +48,7 @@ Voici ci-dessous la liste des extensions et type-mimes supportés par l'applicat
 Tapper :
 
 ```console
-npm install -g
+npm install -g dev-web-server
 ```
 
 # Désinstallation
