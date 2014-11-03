@@ -3,7 +3,7 @@
 /**
  * @fileOverview Run web server.
  *
- * VERSION 1.4.1
+ * VERSION 1.4.2
  *
  * run with arguments:
  * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
@@ -12,7 +12,7 @@
  * - DELAY x: delay in ms before response (default: 0).
  */
 
-var VERSION = "1.4.1";
+var VERSION = "1.4.2";
 
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
