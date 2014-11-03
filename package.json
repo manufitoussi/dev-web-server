@@ -2,6 +2,9 @@
   "author": "Emmanuel Fitoussi",
   "name": "dev-web-server",
   "description": "A simple Node web local server for developments.",
+  "repository": {
+    "url": "https://github.com/manufitoussi/dev-web-server"
+  },
   "version": "1.4.0",
   "main": "./web-server/app.js",
   "bin": {
@@ -20,4 +23,5 @@
     "endpoint",
     "web"
   ],
+  "license": "BSD"
 }
