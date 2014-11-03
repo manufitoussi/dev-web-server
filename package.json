@@ -1,13 +1,32 @@
 {
-  "author": "Emmanuel Fitoussi - WIT SA",
-  "name": "wit-web-server",
-  "description": "A Node web server.",
-  "version": "1.4.0",
+  "author": "Emmanuel Fitoussi",
+  "name": "dev-web-server",
+  "description": "A simple Node web local server for developments.",
+  "repository": {
+    "url": "https://github.com/manufitoussi/dev-web-server"
+  },
+  "version": "1.4.1",
   "main": "./web-server/app.js",
   "bin": {
-    "wit-web-server": "./web-server/app.js"
+    "dev-web-server": "./web-server/app.js"
   },
   "dependencies": {
     "colors": "^0.6.2"
-  }
+  },
+  "engines": {
+    "node": ">=0.10.12"
+  },
+  "keywords": [
+    "server",
+    "webserver",
+    "web-server",
+    "http",
+    "http-server",
+    "httpserver",
+    "endpoint",
+    "API",
+    "mock",
+    "web"
+  ],
+  "license": "BSD"
 }

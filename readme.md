@@ -1,4 +1,4 @@
-WIT WEB SERVER v1.4.0
+DEV WEB SERVER v1.4.1
 =====================
 Serveur web de développement
 ----------------------------
@@ -55,7 +55,7 @@ npm install -g
 Désinstaller le package en tappant la commande suivante :
 
 ```console
-npm uninstall -g wit-web-server
+npm uninstall -g dev-web-server
 ```
 
 # Usages
@@ -64,7 +64,7 @@ npm uninstall -g wit-web-server
 Pour lancer le serveur avec les paramètres par défaut :
 
 ```console
-wit-web-server
+dev-web-server
 ```
 
 Avec cette commande, l'application va créer un serveur :
@@ -85,7 +85,7 @@ Avec cette commande, l'application va créer un serveur :
 
 ## Exemples
 ```console
-wit-web-server DOMAIN mon-domain.fr PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
+dev-web-server DOMAIN mon-domain.fr PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
 ```
 Cette commande lancera un serveur :
 - accessible à l'adresse `http://mon-domain.fr:1234/`
