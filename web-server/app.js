@@ -57,7 +57,7 @@ if (endPointsFilePathIndex !== -1 && (endPointsFilePathIndex + 1) < process.argv
   config.endPointsFilePath = path.resolve(process.cwd(), endPointsFilePath);
 }
 
-console.log('WIT WEB SERVER'.bold.green, '- v' + VERSION);
+console.log('DEV WEB SERVER'.bold.green, '- v' + VERSION);
 
 // start the web server.
 var httpServer = new HttpServer(config);
