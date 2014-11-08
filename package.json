@@ -1,11 +1,11 @@
 {
   "author": "Emmanuel Fitoussi",
   "name": "dev-web-server",
-  "description": "A simple Node web local server for developments.",
+  "description": "A simple web & API server for your development.",
   "repository": {
     "url": "https://github.com/manufitoussi/dev-web-server"
   },
-  "version": "1.4.2",
+  "version": "1.4.3",
   "main": "./web-server/app.js",
   "bin": {
     "dev-web-server": "./web-server/app.js"

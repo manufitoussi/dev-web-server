@@ -1,34 +1,39 @@
-DEV WEB SERVER v1.4.2
+DEV WEB SERVER v1.4.3
 =====================
-Serveur web de développement
+A simple web & API server for your development.
 ----------------------------
 
-# Définition
-Ce projet est une application [NodeJS] permettant de créer un serveur WEB local de développement.
+# Definition
+This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be usefull to mock an API or serve your web site project. 
 
-Il se trouve sous la forme d'un package [npm].
+# Functionnalities
+This application creates, by default, a web server on `http://localhost:8080/` that targets the *website root* from the *launching directory*.
 
-# Fonctionnalités
-Cette application va créer un serveur sur l'addresse `http://localhost:8080/`
-en ciblant la racine de site web dans le répertoire courant.
+You can specify :
+- a domain,
+- a port,
+- a target directory for the* web site root*,
+- a response time delay,
+- an set of an API endpoints.
 
-Il est possible de spécifier :
-- un domaine,
-- un port,
-- un répertoire racine du site web,
-- un délai de requête
-- un ensemble de terminaisons de service `AJAX`.
+## Default webpage
 
-La page par défaut à la racine du site est `index.html`.
+The default webpage at the *website root* is `index.html`.
 
-Il supporte l'usage du `favicon.ico` s'il est placé à la racine du site.
+## Favicon
 
-Les requêtes `POST` et `GET` sont supportées.
+The web server supports using `favicon.ico`. It has to be located at the site root.
 
-## Type-Mimes supportés
-Voici ci-dessous la liste des extensions et type-mimes supportés par l'application :
+## Endpoint verbs
 
-|Extensions | Type-Mimes       |
+The web server supports two endpoint verbs : `POST` and `GET`. 
+> The other verbs will be supported in the next minor release.
+
+## MIME types
+Here is, bellow, the list of extensions and MIME types that are supported by the web server:
+
+
+|Extension  | MIME Type        |
 |--------   | ---------------- |
 |`.html`    |  text/html       |
 |`.js`      |  text/javascript |
@@ -36,104 +41,102 @@ Voici ci-dessous la liste des extensions et type-mimes supportés par l'applicat
 |`.less`    |  text/css        |
 |`.json`    |  text/json       |
 
-# Environnement requis
+# Required environment
 
-* La dernière version de [NodeJS] doit être installé sur le système.
+* The last release of [NodeJS] must be installed on your system.
 
 # Installation
 
-1. Cloner ce projet dans le répertoire de votre choix.
-2. Placer vous dans ce répertoire et installer le package dans votre système.
+Install the package on your system like this:
 
-Tapper :
-
-```console
+```bash
 npm install -g dev-web-server
 ```
 
-# Désinstallation
-Désinstaller le package en tappant la commande suivante :
+# Uninstallation
+Uninstall the package by typing the next command:
 
-```console
+```bash
 npm uninstall -g dev-web-server
 ```
 
-# Usages
+# Uses
 
-## Lancer le serveur
-Pour lancer le serveur avec les paramètres par défaut :
+## Launch server
+To launch the web server with default parameters:
 
-```console
+```bash
 dev-web-server
 ```
 
-Avec cette commande, l'application va créer un serveur :
-- sur l'addresse `http://localhost:8080/`
-- en ciblant la *racine de site web* vers le *répertoire courant*
-- sans délai de requête
-- sans terminaison de service `AJAX`.
+With this command, the application will create a web server :
+- on URL `http://localhost:8080/`
+- that will target *website root* to the *launching directory*
+- without any time delay
+- without API endpoints.
 
-## Les paramètres
+## The Parameters
 
-| Paramètre   | Description      |
+| Parameter   | Description      |
 |------------ | ---------------- |
-| `DOMAIN`      |  Choisir une adresse de domaine (défaut : `localhost`) |
-| `PORT`      |  Choisir un port (défaut : `8080`) |
-| `BASEDIR`   |  Chemin *relatif* ou *absolu* vers la racine du domaine (défaut : *répertoire courant*) |
-| `DELAY`     |  Délai en milliseconde avant chaque réponse `AJAX` du serveur (défaut : `0` ms) |
-| `ENDPOINTS` |  Chemin *relatif* ou *absolu* vers le fichier contenant les terminaisons de services AJAX *(voir sa définition)* |
+| `DOMAIN`    |  To choose a domain (default : `localhost`) |
+| `PORT`      |  To choose a port (default : `8080`) |
+| `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *lauching directory*) |
+| `DELAY`     |  Time delay in milliseconds before each server response (default : `0` ms) |
+| `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
 
-## Exemples
+## Examples
+
 ```console
-dev-web-server DOMAIN mon-domain.fr PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
+dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
 ```
-Cette commande lancera un serveur :
-- accessible à l'adresse `http://mon-domain.fr:1234/`
-- en ciblant la *racine de site web* vers le répertoire `..\rep\httpdocs\`
-- avec un délai de `2000` ms avant chaque réponse `AJAX`
-- des définitions de terminaisons de services `AJAX` définit dans le fichier au chemin `..\rep\server\my-endpoints.js`.
+This command will launch a web server :
+- accessible at url `http://mon-domain.fr:1234/`
+- that will target *website root* to the directory `..\rep\httpdocs\`
+- with a time delay of `2000ms` before each response
+- with API endpoints defined in the file at path `..\rep\server\my-endpoints.js`.
 
-## Définition des terminaisons de service `AJAX`
+## Definition of the API endpoints file
 
-Des terminaisons de service `AJAX` peuvent être définis dans un fichier de script [NodeJS]. Ce dernier doit renvoyer un objet `JavaScript` contenant les définitions des terminaisons sous la forme d'un dictionnaire. La clef est l'`URL` de la terminaison, la valeur est la méthode à exécuter.
+The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` hash object. Each one of its properties is endpoint declaration: the key is the URL part string and the value is a `function` to execute.
 
-### La méthode de terminaison
+### Endpoint function
 
-La méthode de terminaison permet de définir la requête. Elle prend comme argument :
+The endpoint function permits to define the response. It takes in arguments:
 
-| Argument | Type |Description |
+| Argument | Type | Description |
 | --- | --- | --- |
-| req | `Request` | Objet de requête [NodeJS] |
-| res | `Response` | Objet de réponse [NodeJS] |
-| params | `Object` | Objet d'argument de la requête (pris depuis le `body` ou la `querystring`) |
-| sendSuccess | `Function` | Fonction callback à appeler lors du succès de la requête |
-| sendError | `Function` | Fonction callback à appeler lors de l'échec de la requête |
+| req | `Request` | [NodeJS] request object |
+| res | `Response` | [NodeJS] response object |
+| params | `Object` | Hash object parameters of the request (taken from `body` or the `querystring`) |
+| sendSuccess | `Function` | Callback function to call to send a successfull response |
+| sendError | `Function` | Callback function to call to send a failed response |
 
-#### Le callback de succès
+#### Successfull callback
 
-La méthode `sendSuccess` permet de renvoyer une réponse de succès contenant l'objet resultat de la requête. Elle prend comme argument :
+The `sendSuccess` callback allows to send a successfull response. It contains the result object of the request. It takes in arguments:
 
-| Argument | Type |Description |
+| Argument | Type | Description |
 | --- | --- | --- |
-| req | `Request` | Objet de requête [NodeJS] |
-| res | `Response` | Objet de réponse [NodeJS] |
-| result | `Object` | Objet de résultat de la requête |
-| isJSONP | 'boolean' | jsonp activé |
-| jsonpCallback | 'string' | nom de la méthode de callbacj jsonp |
+| req | `Request` | [NodeJS] request object |
+| res | `Response` | [NodeJS] response object |
+| result | `Object` | Result object of the request |
+| jsonpCallback | 'string' | **[optional]** JSONP callback function name to activate JSONP response |
 
-#### Le callback d'erreur ou d'échec
+#### Failed callback
 
-La méthode `sendError` permet de renvoyer une réponse d'échec contenant l'objet d'erreur en résultat de la requête. Ell prend comme argument :
+The `sendError` callback allows to send a failed response. It contains the error result object of the request. It takes in arguments:
 
-| Argument | Type |Description |
+| Arguments | Types | Description |
 | --- | --- | --- |
-| req | `Request` | Objet de requête [NodeJS] |
-| res | `Response` | Objet de réponse [NodeJS] |
-| httpCode | `Numeric` | Code `HTTP` de réponse su serveur |
-| message | `string` | Message text de l'erreur |
-| result | `Object` | Objet de résultat de la requête |
+| req | `Request` | [NodeJS] request object |
+| res | `Response` | [NodeJS] response object |
+| httpCode | `Numeric` | `HTTP` code of the response |
+| message | `string` | Error text message |
+| result | `Object` | Result object of the request |
+| jsonpCallback | 'string' | **[optional]** JSONP callback function name to activate JSONP response |
 
-Exemple :
+Example :
 
 ```js
 var Repository = {
@@ -142,24 +145,41 @@ var Repository = {
 
 module.exports = {
   '/example': function (req, res, params, sendSuccess, sendError) {
+    
+    // Response result is: '{"test":"coucou","count":1}'.
+    // HTTP code is 200
     sendSuccess(req, res, {
       test: 'coucou',
       count: Repository.count++
     });
+
+  },
+
+  '/exampleJSONP': function (req, res, params, sendSuccess, sendError) {
+    
+    // Response result is: myCallback({"test":"coucou","count":1}).
+    // HTTP code is 200
+    sendSuccess(req, res, {
+      test: 'coucou',
+      count: Repository.count++
+    }, params.myCallbackName);
+
   },
 
   '/exampleError': function (req, res, params, sendSuccess, sendError) {
-    sendError(req, res, 401, "erreur d'authentification");
+    
+    // Response result is: '{"code":401,"message":"An error occured durring doing something"}'.
+    // HTTP code is 401
+    sendError(req, res, 401, 'An error occured durring doing something');
 
-    // Le résultat de cet requête sera : { code: 401, message: "erreur d'authentification"}.
   }
 };
 
 ```
 
-## Arrêt de l'application
+## Stop server
 
-Pour arrêter l'application, tapper `Ctrl+C`.
+To stop the server, type `Ctrl+C`.
 
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/

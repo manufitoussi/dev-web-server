@@ -28,12 +28,14 @@ var Service = function (config) {
    * sends an error json result object to client.
    * @param  {Request} req
    * @param  {Response} res
-   * @param  {[type]} httpCode
-   * @param  {[type]} message
-   * @param  {[type]} result
+   * @param  {Number} httpCode
+   * @param  {String} message
+   * @param  {Object} result
+   * @param  {String} [jsonpCallback]
    */
-  var sendError = function (req, res, httpCode, message, result) {
+  var sendError = function (req, res, httpCode, message, result, jsonpCallback) {
     console.error('[ERROR]'.red, httpCode.toString().bold.red, message.red);
+    var isJSONP = jsonpCallback !== undefined;
     if (!result) {
       result = {};
     }
@@ -43,10 +45,15 @@ var Service = function (config) {
       message: message
     };
 
-    res.writeHead(httpCode, {
-      "Content-Type": ContentTypes['.json']
-    });
-    res.end(JSON.stringify(result), 'utf-8');
+    if (!isJSONP) {
+      res.writeHead(httpCode, {
+        "Content-Type": ContentTypes['.json']
+      });
+      res.end(JSON.stringify(result), 'utf-8');
+    } else {
+      res.writeHead(200);
+      res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
+    }
   };
 
   /**
@@ -54,9 +61,10 @@ var Service = function (config) {
    * @param  {Request} req
    * @param  {Response} res
    * @param  {Object} result
+   * @param  {String} [jsonpCallback]
    */
-  var sendSuccess = function (req, res, result, isJSONP, jsonpCallback) {
-    isJSONP = isJSONP === undefined ? false : isJSONP;
+  var sendSuccess = function (req, res, result, jsonpCallback) {
+    var isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {
       res.writeHead(200, {
         "Content-Type": ContentTypes['.json']
