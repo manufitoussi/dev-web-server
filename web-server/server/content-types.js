@@ -1,10 +1,9 @@
-
 var ContentTypes = {
   ".html": 'text/html',
   ".js": 'text/javascript',
   ".css": 'text/css',
   ".less": 'text/css',
-  ".json": 'text/json'
+  ".json": 'application/json'
 };
 
 module.exports = ContentTypes;

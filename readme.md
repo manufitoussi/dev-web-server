@@ -1,4 +1,4 @@
-DEV WEB SERVER v1.4.3
+DEV WEB SERVER v1.4.4
 =====================
 A simple web & API server for your development.
 ----------------------------
@@ -6,7 +6,7 @@ A simple web & API server for your development.
 # Definition
 This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be usefull to mock an API or serve your web site project. 
 
-# Functionnalities
+# Features
 This application creates, by default, a web server on `http://localhost:8080/` that targets the *website root* from the *launching directory*.
 
 You can specify :
