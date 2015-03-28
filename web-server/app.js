@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
+
+
 /**
  * @fileOverview Run web server.
  *
- * VERSION 1.4.4
+ * VERSION 1.4.5
  *
  * run with arguments:
  * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
@@ -12,7 +14,7 @@
  * - DELAY x: delay in ms before response (default: 0).
  */
 
-var VERSION = "1.4.4";
+var VERSION = "1.4.5";
 
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
