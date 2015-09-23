@@ -1,7 +1,7 @@
-DEV WEB SERVER v1.4.5
+DEV WEB SERVER v1.5.0
 =====================
 A simple web & API server for your development.
-----------------------------
+-----------------------------------------------
 
 # Definition
 This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be usefull to mock an API or serve your web site project. 
@@ -14,7 +14,8 @@ You can specify :
 - a port,
 - a target directory for the* web site root*,
 - a response time delay,
-- an set of an API endpoints.
+- an set of an API endpoints
+- activate CORS.
 
 ## Default webpage
 
@@ -26,8 +27,8 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 
 ## Endpoint verbs
 
-The web server supports two endpoint verbs : `POST` and `GET`. 
-> The other verbs will be supported in the next minor release.
+The web server supports endpoint verbs : `OPTIONS`, `POST` and `GET`. 
+> The other verbs will be supported in a next minor release.
 
 ## MIME types
 Here is, bellow, the list of extensions and MIME types that are supported by the web server:
@@ -40,10 +41,11 @@ Here is, bellow, the list of extensions and MIME types that are supported by the
 |`.css`     |  text/css        |
 |`.less`    |  text/css        |
 |`.json`    |  text/json       |
+|`.manifest`    |  text/cache-manifest       |
 
 # Required environment
 
-* The last release of [NodeJS] must be installed on your system.
+* A release of [NodeJS] >= `0.10.12` must be installed on your system.
 
 # Installation
 
@@ -84,6 +86,7 @@ With this command, the application will create a web server :
 | `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *lauching directory*) |
 | `DELAY`     |  Time delay in milliseconds before each server response (default : `0` ms) |
 | `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
+| `WITHCORS`  |  active CORS headers in responses |
 
 ## Examples
 

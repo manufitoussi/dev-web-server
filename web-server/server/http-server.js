@@ -15,7 +15,8 @@ var DEFAULT = {
   root: '/index.html',
   isDebug: false,
   endPointsFilePath: null,
-  delay: 0
+  delay: 0,
+  withCORS: false
 };
 
 /**
@@ -23,7 +24,7 @@ var DEFAULT = {
  * @param {object} config
  * @returns {HttpServer}
  */
-var HttpServer = function (config) {
+var HttpServer = function(config) {
   "use strict";
   config = config || {};
   var isDebug = config.isDebug === undefined ? DEFAULT.isDebug : config.isDebug,
@@ -34,11 +35,12 @@ var HttpServer = function (config) {
     endPointsFilePath = config.endPointsFilePath || DEFAULT.endPointsFilePath,
     service = createActions({
       delay: config.delay || DEFAULT.delay,
-      endPoints: endPointsFilePath ? require(endPointsFilePath) : {}
+      endPoints: endPointsFilePath ? require(endPointsFilePath) : {},
+      withCORS: config.hasOwnProperty('withCORS') ? config.withCORS : DEFAULT.withCORS
     });
 
   var html = {
-    error: function (errMsg, res, opt_code) {
+    error: function(errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
@@ -49,14 +51,14 @@ var HttpServer = function (config) {
     }
   };
 
-  var start = function () {
-    http.createServer(function (req, res) {
+  var start = function() {
+    http.createServer(function(req, res) {
       console.log('------------------------');
       console.log('time:', (new Date()).toISOString());
       console.log('method: ' + req.method.yellow);
       console.log('url: ' + req.url.toString().bold.green);
 
-      var render = function (askedUrl) {
+      var render = function(askedUrl) {
 
         var parsedUrl = url.parse(askedUrl);
         if (parsedUrl.query) {
@@ -90,9 +92,9 @@ var HttpServer = function (config) {
         }
 
         // displays the requested file:
-        fs.exists(filePath, function (exists) {
+        fs.exists(filePath, function(exists) {
           if (exists) {
-            fs.readFile(filePath, function (err, file) {
+            fs.readFile(filePath, function(err, file) {
               if (err) {
                 html.error(err, res);
                 return;
