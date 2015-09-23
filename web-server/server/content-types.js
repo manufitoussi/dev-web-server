@@ -3,6 +3,7 @@ var ContentTypes = {
   ".js": 'text/javascript',
   ".css": 'text/css',
   ".less": 'text/css',
+  ".manifest": 'text/cache-manifest',
   ".json": 'application/json'
 };
 

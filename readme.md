@@ -40,6 +40,7 @@ Here is, bellow, the list of extensions and MIME types that are supported by the
 |`.css`     |  text/css        |
 |`.less`    |  text/css        |
 |`.json`    |  text/json       |
+|`.manifest`    |  text/cache-manifest       |
 
 # Required environment
 
