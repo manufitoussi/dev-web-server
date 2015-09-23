@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
-
-
 /**
  * @fileOverview Run web server.
  *
- * VERSION 1.4.5
+ * VERSION 1.5.0
  *
  * run with arguments:
  * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
@@ -14,7 +12,7 @@
  * - DELAY x: delay in ms before response (default: 0).
  */
 
-var VERSION = "1.4.5";
+var VERSION = "1.5.0";
 
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
@@ -50,6 +48,11 @@ var delayIndex = process.argv.indexOf('DELAY');
 if (delayIndex !== -1 && (delayIndex + 1) < process.argv.length) {
   var delay = process.argv[delayIndex + 1];
   config.delay = delay;
+}
+
+// apply WITHCORS argument if present in the command line.
+if (process.argv.indexOf('WITHCORS') !== -1) {
+  config.withCORS = true;
 }
 
 // apply ENDPOINTS argument if present in the command line.
