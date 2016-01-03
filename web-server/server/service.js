@@ -24,6 +24,14 @@ var Service = function (config) {
    */
   var endPoints = config.endPoints || {};
 
+  var _corsHeaders = function _corsHeaders(res) {
+    if(config.withCORS) {
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, authorization');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  };
+
   /**
    * sends an error json result object to client.
    * @param  {Request} req
@@ -45,6 +53,8 @@ var Service = function (config) {
       message: message
     };
 
+    _corsHeaders(res);
+
     if (!isJSONP) {
       res.writeHead(httpCode, {
         "Content-Type": ContentTypes['.json']
@@ -64,6 +74,9 @@ var Service = function (config) {
    * @param  {String} [jsonpCallback]
    */
   var sendSuccess = function (req, res, result, jsonpCallback) {
+
+    _corsHeaders(res);
+
     var isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {
       res.writeHead(200, {
@@ -91,6 +104,11 @@ var Service = function (config) {
         return;
       }
 
+      if (req.method === 'OPTIONS') {
+        sendSuccess(req, res, '');
+        return;
+      }
+
       if (req.method !== 'DELETE' && req.method !== 'GET') {
         var body = '';
         req.on('data', function (data) {
@@ -113,7 +131,7 @@ var Service = function (config) {
     endPoints: endPoints,
     sendSuccess: sendSuccess,
     sendError: sendError,
-    runEndPoint: runEndPoint,
+    runEndPoint: runEndPoint
   };
 };
 
