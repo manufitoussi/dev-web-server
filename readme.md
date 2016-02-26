@@ -1,5 +1,5 @@
-DEV WEB SERVER v1.5.1
-=====================
+DEV WEB SERVER
+==============
 A simple web & API server for your development.
 -----------------------------------------------
 
