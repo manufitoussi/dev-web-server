@@ -5,13 +5,14 @@
   "repository": {
     "url": "https://github.com/manufitoussi/dev-web-server"
   },
-  "version": "1.5.0",
+  "version": "1.6.0",
   "main": "./web-server/app.js",
   "bin": {
     "dev-web-server": "./web-server/app.js"
   },
   "dependencies": {
-    "colors": ">=0.6.2"
+    "colors": ">=0.6.2",
+    "object-tools": "^2.0.5"
   },
   "engines": {
     "node": ">=0.10.12"
@@ -28,5 +29,5 @@
     "mock",
     "web"
   ],
-  "license": "BSD"
+  "license": "MIT"
 }
