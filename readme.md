@@ -1,10 +1,10 @@
-DEV WEB SERVER v1.5.0
+DEV WEB SERVER v1.5.1
 =====================
 A simple web & API server for your development.
 -----------------------------------------------
 
 # Definition
-This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be usefull to mock an API or serve your web site project. 
+This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be usefull to mock an API or serve your web site project.
 
 # Features
 This application creates, by default, a web server on `http://localhost:8080/` that targets the *website root* from the *launching directory*.
@@ -27,7 +27,7 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 
 ## Endpoint verbs
 
-The web server supports endpoint verbs : `OPTIONS`, `POST` and `GET`. 
+The web server supports endpoint verbs : `OPTIONS`, `POST` and `GET`.
 > The other verbs will be supported in a next minor release.
 
 ## MIME types
@@ -77,7 +77,7 @@ With this command, the application will create a web server :
 - without any time delay
 - without API endpoints.
 
-## The Parameters
+## The CLI Parameters
 
 | Parameter   | Description      |
 |------------ | ---------------- |
@@ -98,6 +98,25 @@ This command will launch a web server :
 - that will target *website root* to the directory `..\rep\httpdocs\`
 - with a time delay of `2000ms` before each response
 - with API endpoints defined in the file at path `..\rep\server\my-endpoints.js`.
+
+## The JSON Configugation
+
+We can use a JSON configuration file at the lauching directory : `dev-web-server.json`.
+Any argument in the command line will override the corresponding one in this file.
+
+example :
+
+```JSON
+{
+  "domain": "0.0.0.0",
+  "port": 13002,
+  "baseDir": "./dist/test-pages",
+  "delay": 0,
+  "endPointsFilePath": "./api-proxy/api.js",
+  "withCORS": "true"
+}
+```
+
 
 ## Definition of the API endpoints file
 
@@ -148,7 +167,7 @@ var Repository = {
 
 module.exports = {
   '/example': function (req, res, params, sendSuccess, sendError) {
-    
+
     // Response result is: '{"test":"coucou","count":1}'.
     // HTTP code is 200
     sendSuccess(req, res, {
@@ -159,7 +178,7 @@ module.exports = {
   },
 
   '/exampleJSONP': function (req, res, params, sendSuccess, sendError) {
-    
+
     // Response result is: myCallback({"test":"coucou","count":1}).
     // HTTP code is 200
     sendSuccess(req, res, {
@@ -170,7 +189,7 @@ module.exports = {
   },
 
   '/exampleError': function (req, res, params, sendSuccess, sendError) {
-    
+
     // Response result is: '{"code":401,"message":"An error occured durring doing something"}'.
     // HTTP code is 401
     sendError(req, res, 401, 'An error occured durring doing something');

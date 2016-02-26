@@ -26,7 +26,7 @@ var Service = function (config) {
 
   var _corsHeaders = function _corsHeaders(res) {
     if(config.withCORS) {
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, authorization');
+      res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
@@ -61,7 +61,7 @@ var Service = function (config) {
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(200);
+      res.writeHead(httpCode);
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
