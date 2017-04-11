@@ -100,11 +100,13 @@ var HttpServer = function(config) {
                 return;
               }
 
-              res.writeHead(200, {
-                "Content-Type": ContentTypes[fileExt],
-                "Cache-Control": "no-cache"
-              });
-              res.end(file, 'utf-8');
+              setTimeout(function() {
+                res.writeHead(200, {
+                  "Content-Type": ContentTypes[fileExt],
+                  "Cache-Control": "no-cache"
+                });
+                res.end(file, 'utf-8');
+              }, config.delay || DEFAULT.delay);
             });
             return;
           }
