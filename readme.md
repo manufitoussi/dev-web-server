@@ -27,8 +27,7 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 
 ## Endpoint verbs
 
-The web server supports endpoint verbs : `OPTIONS`, `POST` and `GET`.
-> The other verbs will be supported in a next minor release.
+The web server supports all endpoint verbs.
 
 ## MIME types
 Here is, bellow, the list of extensions and MIME types that are supported by the web server:

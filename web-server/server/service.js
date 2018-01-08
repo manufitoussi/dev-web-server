@@ -109,7 +109,7 @@ var Service = function (config) {
         return;
       }
 
-      if (req.method === 'POST') {
+      if (req.method !== 'DELETE' && req.method !== 'GET') {
         var body = '';
         req.on('data', function (data) {
           body += data;
