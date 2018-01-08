@@ -5,11 +5,22 @@ var Repository = {
 module.exports = {
   '/example': function (req, res, params, sendSuccess, sendError) {
     
-    // Response result is: '{"test":"coucou","count":1}'.
+    // Response result is: '{"test":"coucou","count":1, 2, 3, ...}'.
     // HTTP code is 200
     sendSuccess(req, res, {
       test: 'coucou',
       count: Repository.count++
+    });
+
+  },
+  
+  '/exampleMethod': function (req, res, params, sendSuccess, sendError) {
+    
+    // Response result is: '{"method": "The request method"}'.
+    // HTTP code is 200
+    sendSuccess(req, res, {
+      method: req.method,
+      params: params
     });
 
   },
