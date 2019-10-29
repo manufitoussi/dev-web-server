@@ -16,7 +16,7 @@ var VERSION = require('../package').version;
 var path = require('path');
 var HttpServer = require('./server/http-server.js');
 var fs = require('fs');
-var o = require('object-tools');
+const merge = (...objects) => Object.assign({}, ...objects);
 
 var config = {
   baseDir: process.cwd(), // set to the current dir by default.
@@ -82,7 +82,7 @@ fs.exists(packageJSONPath, function(exists) {
     if (defaultConfig) {
       defaultConfig.endPointsFilePath = defaultConfig.hasOwnProperty('endPointsFilePath') ? path.resolve(process.cwd(), defaultConfig.endPointsFilePath) : defaultConfig.endPointsFilePath;
       defaultConfig.baseDir = defaultConfig.hasOwnProperty('baseDir') ? path.resolve(process.cwd(), defaultConfig.baseDir) : defaultConfig.baseDir;
-      config = o.extend(config, defaultConfig);
+      config = merge(config, defaultConfig);
     }
   }
 
