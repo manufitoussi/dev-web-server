@@ -4,7 +4,7 @@ A simple web & API server for your development.
 -----------------------------------------------
 
 # Definition
-This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be usefull to mock an API or serve your web site project.
+This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be useful to mock an API or serve your web site project.
 
 # Features
 This application creates, by default, a web server on `http://localhost:8080/` that targets the *website root* from the *launching directory*.
@@ -29,22 +29,13 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 
 The web server supports all endpoint verbs.
 
-## MIME types
-Here is, bellow, the list of extensions and MIME types that are supported by the web server:
+## Content types
 
-
-|Extension  | MIME Type        |
-|--------   | ---------------- |
-|`.html`    |  text/html       |
-|`.js`      |  text/javascript |
-|`.css`     |  text/css        |
-|`.less`    |  text/css        |
-|`.json`    |  text/json       |
-|`.manifest`    |  text/cache-manifest       |
+The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension. If nothing matches, default content type is used : `application/octet-stream`.
 
 # Required environment
 
-* A release of [NodeJS] >= `0.10.12` must be installed on your system.
+* A release of [NodeJS] >= `5.0.0` must be installed on your system.
 
 # Installation
 
@@ -54,7 +45,7 @@ Install the package on your system like this:
 npm install -g dev-web-server
 ```
 
-# Uninstallation
+# Un-installation
 Uninstall the package by typing the next command:
 
 ```bash
@@ -82,7 +73,7 @@ With this command, the application will create a web server :
 |------------ | ---------------- |
 | `DOMAIN`    |  To choose a domain (default : `localhost`) |
 | `PORT`      |  To choose a port (default : `8080`) |
-| `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *lauching directory*) |
+| `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *launching directory*) |
 | `DELAY`     |  Time delay in milliseconds before each server response (default : `0` ms) |
 | `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
 | `WITHCORS`  |  active CORS headers in responses |
@@ -98,9 +89,9 @@ This command will launch a web server :
 - with a time delay of `2000ms` before each response
 - with API endpoints defined in the file at path `..\rep\server\my-endpoints.js`.
 
-## The JSON Configugation
+## The JSON Configuration File
 
-We can use a JSON configuration file at the lauching directory : `dev-web-server.json`.
+We can use a JSON configuration file at the launching directory : `dev-web-server.json`.
 Any argument in the command line will override the corresponding one in this file.
 
 example :
@@ -116,7 +107,6 @@ example :
 }
 ```
 
-
 ## Definition of the API endpoints file
 
 The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` hash object. Each one of its properties is endpoint declaration: the key is the URL part string and the value is a `function` to execute.
@@ -129,13 +119,13 @@ The endpoint function permits to define the response. It takes in arguments:
 | --- | --- | --- |
 | req | `Request` | [NodeJS] request object |
 | res | `Response` | [NodeJS] response object |
-| params | `Object` | Hash object parameters of the request (taken from `body` or the `querystring`) |
-| sendSuccess | `Function` | Callback function to call to send a successfull response |
+| params | `Object` | Hash object parameters of the request (taken from `body` or the `query string`) |
+| sendSuccess | `Function` | Callback function to call to send a successful response |
 | sendError | `Function` | Callback function to call to send a failed response |
 
-#### Successfull callback
+#### Successful callback
 
-The `sendSuccess` callback allows to send a successfull response. It contains the result object of the request. It takes in arguments:
+The `sendSuccess` callback allows to send a successful response. It contains the result object of the request. It takes in arguments:
 
 | Argument | Type | Description |
 | --- | --- | --- |
@@ -189,9 +179,9 @@ module.exports = {
 
   '/exampleError': function (req, res, params, sendSuccess, sendError) {
 
-    // Response result is: '{"code":401,"message":"An error occured durring doing something"}'.
+    // Response result is: '{"code":401,"message":"An error occurred during doing something"}'.
     // HTTP code is 401
-    sendError(req, res, 401, 'An error occured durring doing something');
+    sendError(req, res, 401, 'An error occurred during doing something');
 
   }
 };
@@ -204,3 +194,4 @@ To stop the server, type `Ctrl+C`.
 
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/
+[mime-types]: https://www.npmjs.com/package/mime-types
