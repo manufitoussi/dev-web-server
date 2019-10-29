@@ -38,9 +38,9 @@ module.exports = {
 
   '/exampleError': function (req, res, params, sendSuccess, sendError) {
     
-    // Response result is: '{"code":401,"message":"An error occured durring doing something"}'.
+    // Response result is: '{"code":401,"message":"An error occurred during doing something"}'.
     // HTTP code is 401
-    sendError(req, res, 401, 'An error occured durring doing something');
+    sendError(req, res, 401, 'An error occurred during doing something');
 
   }
 };
