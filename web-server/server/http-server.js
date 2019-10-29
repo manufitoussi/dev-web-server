@@ -33,11 +33,21 @@ var HttpServer = function(config) {
     baseDir = config.baseDir || DEFAULT.baseDir,
     root = config.root || DEFAULT.root,
     endPointsFilePath = config.endPointsFilePath || DEFAULT.endPointsFilePath,
-    service = createActions({
-      delay: config.delay || DEFAULT.delay,
-      endPoints: endPointsFilePath ? require(endPointsFilePath) : {},
-      withCORS: config.hasOwnProperty('withCORS') ? config.withCORS : DEFAULT.withCORS
-    });
+    endpoints = {},
+    service = null;
+
+  try { 
+    endpoints = endPointsFilePath ? require(endPointsFilePath) : {};
+  } catch(e) {
+    console.error('[ERROR]'.red, 'cannot load endpoints file.');
+    console.error((e.stack || e.toString()).red);
+  }
+
+  service = createActions({
+    delay: config.delay || DEFAULT.delay,
+    endPoints: endpoints,
+    withCORS: config.hasOwnProperty('withCORS') ? config.withCORS : DEFAULT.withCORS
+  });
 
   var html = {
     error: function(errMsg, res, opt_code) {
