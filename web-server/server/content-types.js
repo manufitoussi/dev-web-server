@@ -1,10 +1,9 @@
-var ContentTypes = {
-  ".html": 'text/html',
-  ".js": 'text/javascript',
-  ".css": 'text/css',
-  ".less": 'text/css',
-  ".manifest": 'text/cache-manifest',
-  ".json": 'application/json'
-};
+const mimes = require('mime-types');
 
-module.exports = ContentTypes;
+const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
+
+module.exports = {
+  lookup: ext => mimes.lookup(ext) || DEFAULT_CONTENT_TYPE,
+
+  charset: ext => mimes.charset(ext)
+};

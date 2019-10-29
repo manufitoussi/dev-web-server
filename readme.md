@@ -29,18 +29,9 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 
 The web server supports all endpoint verbs.
 
-## MIME types
-Here is, bellow, the list of extensions and MIME types that are supported by the web server:
+## Content types
 
-
-|Extension  | MIME Type        |
-|--------   | ---------------- |
-|`.html`    |  text/html       |
-|`.js`      |  text/javascript |
-|`.css`     |  text/css        |
-|`.less`    |  text/css        |
-|`.json`    |  text/json       |
-|`.manifest`    |  text/cache-manifest       |
+The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension. If nothing matches, default content type is used : `application/octet-stream`.
 
 # Required environment
 
@@ -115,7 +106,6 @@ example :
   "withCORS": "true"
 }
 ```
-
 
 ## Definition of the API endpoints file
 
@@ -204,3 +194,4 @@ To stop the server, type `Ctrl+C`.
 
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/
+[mime-types]: https://www.npmjs.com/package/mime-types

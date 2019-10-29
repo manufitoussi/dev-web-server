@@ -57,7 +57,7 @@ var Service = function (config) {
 
     if (!isJSONP) {
       res.writeHead(httpCode, {
-        "Content-Type": ContentTypes['.json']
+        "Content-Type": ContentTypes.lookup('.json')
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
@@ -80,7 +80,7 @@ var Service = function (config) {
     var isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {
       res.writeHead(200, {
-        "Content-Type": ContentTypes['.json']
+        "Content-Type": ContentTypes.lookup('.json')
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {

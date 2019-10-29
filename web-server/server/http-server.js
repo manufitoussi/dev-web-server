@@ -55,7 +55,7 @@ var HttpServer = function(config) {
       console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
       res.writeHead(opt_code, {
-        "Content-Type": ContentTypes['.html']
+        "Content-Type": ContentTypes.lookup('.html')
       });
       res.end(htmlError, 'utf-8');
     }
@@ -101,6 +101,9 @@ var HttpServer = function(config) {
           return;
         }
 
+        const contentType = ContentTypes.lookup(fileExt);
+        console.log('content type:', contentType.bold);
+
         // displays the requested file:
         fs.exists(filePath, function(exists) {
           if (exists) {
@@ -112,7 +115,7 @@ var HttpServer = function(config) {
 
               setTimeout(function() {
                 res.writeHead(200, {
-                  "Content-Type": ContentTypes[fileExt],
+                  "Content-Type": contentType,
                   "Cache-Control": "no-cache"
                 });
                 res.end(file, 'utf-8');

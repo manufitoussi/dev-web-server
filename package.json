@@ -13,6 +13,7 @@
   "dependencies": {
     "colors": ">=0.6.2",
     "object-tools": "^2.0.5"
+    "mime-types": "^2.1.24"
   },
   "engines": {
     "node": ">=0.10.12"
