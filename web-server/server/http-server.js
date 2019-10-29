@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var util = require('util');
 var url = require('url');
-var colors = require('colors');
+require('colors');
 
 var ContentTypes = require('./content-types.js');
 var createActions = require('./service.js');
@@ -64,8 +64,8 @@ var HttpServer = function(config) {
   var start = function() {
     http.createServer(function(req, res) {
       console.log('------------------------');
-      console.log('time:', (new Date()).toISOString());
-      console.log('method: ' + req.method.yellow);
+      console.log('time:', (new Date()).toISOString().bold);
+      console.log('method: ' + req.method.bold.yellow);
       console.log('url: ' + req.url.toString().bold.green);
 
       var render = function(askedUrl) {
@@ -81,19 +81,19 @@ var HttpServer = function(config) {
 
         // full path of the file
         var filePath = path.resolve(baseDir, '.' + parsedUrl.pathname);
-        console.log('filePath: ' + filePath);
+        console.log('filePath: ' + filePath.bold);
 
         // file name with extension
         var baseFile = path.basename(filePath);
-        console.log('base: ' + baseFile);
+        console.log('base: ' + baseFile.bold);
 
         // file extension
         var fileExt = path.extname(filePath);
-        console.log('ext: ' + fileExt);
+        console.log('ext: ' + fileExt.bold);
 
         // the full path of directory that contains the file.
         var dirFile = path.dirname(filePath);
-        console.log('dir: ' + dirFile);
+        console.log('dir: ' + dirFile.bold);
 
         if (fileExt === '') {
           // no extension : this is an action endpoint!
