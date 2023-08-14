@@ -25,11 +25,11 @@ var Service = function (config) {
   var endPoints = config.endPoints || {};
 
   var _corsHeaders = function _corsHeaders(res) {
-    if(config.withCORS) {
-      res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-    }
+    // if(config.withCORS) {
+    //   res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
+    //   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    //   res.setHeader('Access-Control-Allow-Origin', '*');
+    // }
   };
 
   /**

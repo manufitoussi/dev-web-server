@@ -37,9 +37,16 @@ var HttpServer = function (config) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
+      if(config.withCORS) {
+        res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader("Cache-Control", "no-cache" );
+      }
       res.writeHead(opt_code, {
         "Content-Type": ContentTypes.lookup('.html')
       });
+
       res.end(htmlError, 'utf-8');
     }
   };
@@ -96,6 +103,11 @@ var HttpServer = function (config) {
             }
 
             setTimeout(function () {
+              if(config.withCORS) {
+                res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
+                res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+                res.setHeader('Access-Control-Allow-Origin', '*');
+              }
               res.writeHead(200, {
                 "Content-Type": contentType,
                 "Cache-Control": "no-cache"
