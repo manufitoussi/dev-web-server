@@ -31,12 +31,12 @@ module.exports = function (config, argv) {
   }
 
   // apply WITHCORS argument if present in the command line.
-  if (argv.indexOf('WITHCORS') !== -1) {
+  if (argv.indexOf('CORS') !== -1) {
     config.withCORS = true;
   }
 
   // apply WITHCACHE argument if present in the command line.
-  if (argv.indexOf('WITHCACHE') !== -1) {
+  if (argv.indexOf('CACHE') !== -1) {
     config.withCache = true;
   }
 
