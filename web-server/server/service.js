@@ -2,6 +2,8 @@ var ContentTypes = require('./content-types.js');
 var url = require('url');
 var DELAY = 0;
 
+const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
+
 /**
  * Service class.
  *
@@ -24,14 +26,6 @@ var Service = function (config) {
    */
   var endPoints = config.endPoints || {};
 
-  var _corsHeaders = function _corsHeaders(res) {
-    if(config.withCORS) {
-      res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-    }
-  };
-
   /**
    * sends an error json result object to client.
    * @param  {Request} req
@@ -53,7 +47,13 @@ var Service = function (config) {
       message: message
     };
 
-    _corsHeaders(res);
+    if (config.withCORS) {
+      addCorsHeaders(res);
+    }
+
+    if (!config.withCache) {
+      addCashControlHeader(res, 'no-cache');
+    }
 
     if (!isJSONP) {
       res.writeHead(httpCode, {
@@ -75,7 +75,13 @@ var Service = function (config) {
    */
   var sendSuccess = function (req, res, result, jsonpCallback) {
 
-    _corsHeaders(res);
+    if (config.withCORS) {
+      addCorsHeaders(res);
+    }
+
+    if (!config.withCache) {
+      addCashControlHeader(res, 'no-cache');
+    }
 
     var isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {

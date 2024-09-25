@@ -5,17 +5,20 @@
   "repository": {
     "url": "https://github.com/manufitoussi/dev-web-server"
   },
-  "version": "1.7.0",
+  "scripts": {
+    "start": "node ./web-server/app.js ENDPOINTS ./tests/endpoints.js BASEDIR ./tests/httpdocs"
+  },
+  "version": "2.0.0",
   "main": "./web-server/app.js",
   "bin": {
     "dev-web-server": "./web-server/app.js"
   },
   "dependencies": {
-    "colors": ">=0.6.2",
-    "mime-types": "^2.1.24"
+    "colors": ">=1.4.0",
+    "mime-types": "^2.1.35"
   },
   "engines": {
-    "node": ">=5.0.0"
+    "node": ">=14.0.0"
   },
   "keywords": [
     "server",
@@ -27,7 +30,11 @@
     "endpoint",
     "API",
     "mock",
-    "web"
+    "web",
+    "SPA",
+    "CORS",
+    "routing",
+    "lightweight"
   ],
   "license": "MIT"
 }

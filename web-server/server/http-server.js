@@ -3,11 +3,11 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var url = require('url');
 const ContentTypes = require('./content-types.js');
 const createActions = require('./service.js');
 const DEFAULT = require('../config/default');
 const merge = require('../tools/merge');
+const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
 
 /**
  * HttpServer class.
@@ -29,7 +29,8 @@ var HttpServer = function (config) {
   service = createActions({
     delay: config.delay || DEFAULT.delay,
     endPoints: endpoints,
-    withCORS: config.withCORS
+    withCORS: config.withCORS,
+    withCache: config.withCache,
   });
 
   var html = {
@@ -37,9 +38,18 @@ var HttpServer = function (config) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
+      if(config.withCORS) {
+        addCorsHeaders(res)
+      }
+
+      if(!config.withCache) {
+        addCashControlHeader(res, 'no-cache');
+      }
+
       res.writeHead(opt_code, {
         "Content-Type": ContentTypes.lookup('.html')
       });
+
       res.end(htmlError, 'utf-8');
     }
   };
@@ -52,19 +62,36 @@ var HttpServer = function (config) {
       console.log('url: ' + req.url.toString().bold.green);
 
       var render = function render(askedUrl) {
+        var url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
 
-        var parsedUrl = url.parse(askedUrl);
-        if (parsedUrl.query) {
-          console.log('query: ' + parsedUrl.query);
+        if (url.search) {
+          console.log('search: ' + url.search);
         }
 
-        if (parsedUrl.pathname === '/') {
-          parsedUrl.pathname = config.root;
+        if (url.pathname === '/') {
+          url.pathname = config.root;
+        }
+
+        if (url.pathname.startsWith(config.endPointsRoot)) {
+          // this is an endpoint request.
+          const endPoint = url.pathname.substring(config.endPointsRoot.length);
+          console.log('endPoint:', endPoint);
+          service.runEndPoint(req, res, endPoint);
+          return;
         }
 
         // full path of the file
-        var filePath = path.resolve(config.baseDir, '.' + parsedUrl.pathname);
+        var filePath = path.resolve(config.baseDir, '.' + url.pathname);
         console.log('filePath: ' + filePath.bold);
+
+        if (config.isSPA && !fs.existsSync(filePath)) {
+          // if the file does not exist, the server will return the SPA root file.
+          filePath = path.resolve(config.baseDir, '.' + config.root);
+          console.log('Redirect to SPA root file:', filePath.bold);
+
+          // pass the requested url to the SPA.
+          req.url = askedUrl;
+        }
 
         // file name with extension
         var baseFile = path.basename(filePath);
@@ -78,17 +105,12 @@ var HttpServer = function (config) {
         var dirFile = path.dirname(filePath);
         console.log('dir: ' + dirFile.bold);
 
-        if (fileExt === '') {
-          // no extension : this is an action endpoint!
-          service.runEndPoint(req, res, parsedUrl.pathname);
-          return;
-        }
-
         const contentType = ContentTypes.lookup(fileExt);
         console.log('content type:', contentType.bold);
 
         // displays the requested file:
         if (fs.existsSync(filePath)) {
+
           fs.readFile(filePath, function (err, file) {
             if (err) {
               html.error(err, res);
@@ -96,9 +118,16 @@ var HttpServer = function (config) {
             }
 
             setTimeout(function () {
+              if(config.withCORS) {
+                addCorsHeaders(res)
+              }
+
+              if(!config.withCache) {
+                addCashControlHeader(res, 'no-cache');
+              }
+
               res.writeHead(200, {
                 "Content-Type": contentType,
-                "Cache-Control": "no-cache"
               });
               res.end(file, 'utf-8');
             }, config.delay || DEFAULT.delay);
