@@ -63,7 +63,6 @@ var HttpServer = function (config) {
 
       var render = function render(askedUrl) {
         var url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
-        console.log('url:', url);
 
         if (url.search) {
           console.log('search: ' + url.search);

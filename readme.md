@@ -15,7 +15,10 @@ You can specify :
 - a target directory for the* web site root*,
 - a response time delay,
 - an set of an API endpoints
+- an root url for routing API endpoints.
+- activate SPA mode.
 - activate CORS.
+- activate cache control.
 
 ## Default webpage
 
@@ -28,6 +31,10 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 ## Endpoint verbs
 
 The web server supports all endpoint verbs.
+
+## SPA mode
+
+The SPA mode permits to redirect all requests to your base file (default: `index.html`). This is useful for single page applications with no hashed-base routing system.
 
 ## Content types
 
@@ -71,28 +78,48 @@ With this command, the application will create a web server :
 
 | Parameter   | Description      |
 |------------ | ---------------- |
+| `--help` or `HELP`    |  Display help    |
 | `DOMAIN`    |  To choose a domain (default : `localhost`) |
 | `PORT`      |  To choose a port (default : `8080`) |
 | `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *launching directory*) |
 | `DELAY`     |  Time delay in milliseconds before each server response (default : `0` ms) |
 | `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
-| `WITHCORS`  |  active CORS headers in responses |
+| `ENDPONTSROOT` |  Root URL for routing API endpoints (default : `/api`) |
+| `SPA`       |  Activate SPA mode (default : `false`) |
+| `CORS`      |  active CORS headers in responses |
+| `CACHE`     |  active cache control headers in responses |
 
 ## Examples
 
-```console
-dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js
+```bash
+dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js ENDPONTSROOT /my-api
 ```
+
 This command will launch a web server :
 - accessible at url `http://mon-domain.fr:1234/`
 - that will target *website root* to the directory `..\rep\httpdocs\`
 - with a time delay of `2000ms` before each response
-- with API endpoints defined in the file at path `..\rep\server\my-endpoints.js`.
+- with API endpoints defined in the file at path `..\rep\server\my-endpoints.js` accessible at the root URL `/my-api`.
 
 ## The JSON Configuration File
 
 We can use a JSON configuration file at the launching directory : `dev-web-server.json`.
 Any argument in the command line will override the corresponding one in this file.
+
+The JSON configuration file has to contain the following properties:
+
+| Property | Type | Description | default value |
+| --- | --- | --- | --- |
+| domain | `string` | Domain name of the server | `localhost` |
+| port | `numeric` | Port number of the server | `8080` |
+| baseDir | `string` | *relative* or *absolute* path to the *website root* | *launching directory* |
+| delay | `numeric` | Time delay in milliseconds before each server response | `0` |
+| endPointsFilePath | `string` | *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* | `null` |
+| endPointsRoot | `string` | Root URL for routing API endpoints | `/api` |
+| isSPA | `boolean` | Activate SPA mode | `false` |
+| withCORS | `boolean` | Activate CORS headers in responses | `false` |
+| withCache | `boolean` | Activate cache control headers in responses | `false` |
+
 
 example :
 
@@ -103,13 +130,13 @@ example :
   "baseDir": "./dist/test-pages",
   "delay": 0,
   "endPointsFilePath": "./api-proxy/api.js",
-  "withCORS": "true"
+  "withCORS": true
 }
 ```
 
 ## Definition of the API endpoints file
 
-The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` hash object. Each one of its properties is endpoint declaration: the key is the URL part string and the value is a `function` to execute.
+The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` hash object. Each one of its properties is endpoint declaration: the key is the URL part string before the endpoints root url (default: `/api`) and the value is a `function` to execute.
 
 ### Endpoint function
 
