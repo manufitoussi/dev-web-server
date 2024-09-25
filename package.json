@@ -3,7 +3,7 @@
   "name": "dev-web-server",
   "description": "A simple web & API server for your development.",
   "repository": {
-    "url": "https://github.com/manufitoussi/dev-web-server"
+    "url": "git+https://github.com/manufitoussi/dev-web-server.git"
   },
   "scripts": {
     "start": "node ./web-server/app.js ENDPOINTS ./tests/endpoints.js BASEDIR ./tests/httpdocs"
@@ -11,7 +11,7 @@
   "version": "2.0.0",
   "main": "./web-server/app.js",
   "bin": {
-    "dev-web-server": "./web-server/app.js"
+    "dev-web-server": "web-server/app.js"
   },
   "dependencies": {
     "colors": ">=1.4.0",
