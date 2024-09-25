@@ -15,6 +15,12 @@ module.exports = {
   // no endpoint by default.
   endPointsFilePath: null,
 
+  // endpoint root url.
+  endPointsRoot: '/api',
+
+  // no SPA by default.
+  isSPA: false,
+
   // no delay by default.
   delay: 0,
 

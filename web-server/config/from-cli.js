@@ -43,10 +43,21 @@ module.exports = function (config, argv) {
   // apply ENDPOINTS argument if present in the command line.
   var endPointsFilePathIndex = argv.indexOf('ENDPOINTS');
   if (endPointsFilePathIndex !== -1 &&
-    (endPointsFilePathIndex + 1) <
-    argv.length) {
+    (endPointsFilePathIndex + 1) < argv.length) {
     var endPointsFilePath = argv[endPointsFilePathIndex + 1];
     config.endPointsFilePath = path.resolve(process.cwd(), endPointsFilePath);
+  }
+
+  // apply ENDPOINTSROOT argument if present in the command line.
+  var endPointsRootIndex = argv.indexOf('ENDPOINTSROOT');
+  if (endPointsRootIndex !== -1 && (endPointsRootIndex + 1) < argv.length) {
+    var endPointsRoot = argv[endPointsRootIndex + 1];
+    config.endPointsRoot = endPointsRoot;
+  }
+
+  // apply SPA argument if present in the command line.
+  if (argv.indexOf('SPA') !== -1) {
+    config.isSPA = true;
   }
 
   return config;
