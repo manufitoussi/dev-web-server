@@ -8,6 +8,7 @@ const ContentTypes = require('./content-types.js');
 const createActions = require('./service.js');
 const DEFAULT = require('../config/default');
 const merge = require('../tools/merge');
+const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
 
 /**
  * HttpServer class.
@@ -29,7 +30,8 @@ var HttpServer = function (config) {
   service = createActions({
     delay: config.delay || DEFAULT.delay,
     endPoints: endpoints,
-    withCORS: config.withCORS
+    withCORS: config.withCORS,
+    withCache: config.withCache,
   });
 
   var html = {
@@ -38,11 +40,13 @@ var HttpServer = function (config) {
       console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
       if(config.withCORS) {
-        res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader("Cache-Control", "no-cache" );
+        addCorsHeaders(res)
       }
+
+      if(!config.withCache) {
+        addCashControlHeader(res, 'no-cache');
+      }
+
       res.writeHead(opt_code, {
         "Content-Type": ContentTypes.lookup('.html')
       });
@@ -104,13 +108,15 @@ var HttpServer = function (config) {
 
             setTimeout(function () {
               if(config.withCORS) {
-                res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Origin, Accept');
-                res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-                res.setHeader('Access-Control-Allow-Origin', '*');
+                addCorsHeaders(res)
               }
+
+              if(!config.withCache) {
+                addCashControlHeader(res, 'no-cache');
+              }
+
               res.writeHead(200, {
                 "Content-Type": contentType,
-                "Cache-Control": "no-cache"
               });
               res.end(file, 'utf-8');
             }, config.delay || DEFAULT.delay);

@@ -35,6 +35,11 @@ module.exports = function (config, argv) {
     config.withCORS = true;
   }
 
+  // apply WITHCACHE argument if present in the command line.
+  if (argv.indexOf('WITHCACHE') !== -1) {
+    config.withCache = true;
+  }
+
   // apply ENDPOINTS argument if present in the command line.
   var endPointsFilePathIndex = argv.indexOf('ENDPOINTS');
   if (endPointsFilePathIndex !== -1 &&

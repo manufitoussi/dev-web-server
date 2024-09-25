@@ -1,12 +1,12 @@
-module.exports =  {
-  
+module.exports = {
+
   domain: 'localhost',
 
   port: '8080',
 
   // set to the current directory.
-  baseDir: process.cwd(), 
-  
+  baseDir: process.cwd(),
+
   root: '/index.html',
 
   // no debug.
@@ -17,6 +17,10 @@ module.exports =  {
 
   // no delay by default.
   delay: 0,
-  
-  withCORS: false
+
+  // no CORS by default.
+  withCORS: false,
+
+  // no cache by default.
+  withCache: false,
 };
