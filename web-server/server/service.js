@@ -1,5 +1,6 @@
 import ContentTypes from './content-types.js';
 import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
+import style from '../tools/style.js';
 
 var DELAY = 0;
 
@@ -35,7 +36,7 @@ var Service = function (config) {
    * @param  {String} [jsonpCallback]
    */
   var sendError = function (req, res, httpCode, message, result, jsonpCallback) {
-    console.error('[ERROR]'.red, httpCode.toString().bold.red, message.red);
+    console.error(style('red', '[ERROR]'), style(['bold', 'red'], httpCode), style('red', message));
     var isJSONP = jsonpCallback !== undefined;
     if (!result) {
       result = {};
@@ -101,7 +102,7 @@ var Service = function (config) {
    * @param  {String} endPointName
    */
   var runEndPoint = function (req, res, endPointName) {
-    console.log('Endpoint: '.cyan + endPointName.cyan);
+    console.log(style('cyan', 'Endpoint: ' + endPointName));
     setTimeout(function () {
       var endPoint = endPoints[endPointName];
       if (endPoint === undefined) {
@@ -121,7 +122,7 @@ var Service = function (config) {
         });
         req.on('end', function () {
           req.body = body;
-          console.log('Body: '.bold + req.body);
+          console.log(style('bold', 'Body: ') + req.body);
           callEndPoint(endPoint, req, res, req.body);
         });
         return;
@@ -160,7 +161,7 @@ var Service = function (config) {
     try {
       endPoint(req, res, params, sendSuccess, sendError);
     } catch (e) {
-      console.error((e.stack || e.toString()).red);
+      console.error(style('red', e.stack || e.toString()));
       if (res.headersSent) {
         res.end();
         return;
