@@ -8,20 +8,20 @@ A simple web & API server for your development.
 -----------------------------------------------
 
 # Definition
-This project is a [NodeJS] application that permits to simply and quickly create a WEB local server. It can distribute any static or dynamic data and file. This will be useful to mock an API or serve your web site project.
+This project is a [NodeJS] application that creates a local web server simply and quickly. It serves static files and dynamic data: it is useful to mock an API or to serve your website project.
 
 # Features
 This application creates, by default, a web server on `http://localhost:8080/` that targets the *website root* from the *launching directory*.
 
-You can specify :
-- a domain,
-- a port,
-- a target directory for the* web site root*,
-- a response time delay,
-- an set of an API endpoints
-- an root url for routing API endpoints.
-- activate SPA mode.
-- activate CORS.
+You can:
+- choose a domain,
+- choose a port,
+- choose the directory of the *website root*,
+- add a delay before each response,
+- define a set of API endpoints,
+- choose the root URL of the API endpoints,
+- activate the SPA mode,
+- activate the CORS headers,
 - allow browser caching (responses are sent with `Cache-Control: no-cache` by default).
 
 ## Default webpage
@@ -40,11 +40,11 @@ The web server supports all endpoint verbs.
 
 ## SPA mode
 
-The SPA mode permits to redirect all requests to your base file (default: `index.html`). This is useful for single page applications with no hashed-base routing system.
+In SPA mode, the requests of missing files are answered with your base file (default: `index.html`). This is useful for single page applications without a hash-based routing system.
 
 ## Content types
 
-The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension, with its charset for the text files (e.g. `text/html; charset=utf-8`). If nothing matches, default content type is used : `application/octet-stream`.
+The content type of the requested file is resolved with [mime-types]. This tool looks up the content type from the requested file extension, with its charset for the text files (e.g. `text/html; charset=utf-8`). If nothing matches, the default content type is used: `application/octet-stream`.
 
 ## OPTIONS requests
 
@@ -62,14 +62,14 @@ Install the package on your system like this:
 npm install -g dev-web-server
 ```
 
-# Un-installation
-Uninstall the package by typing the next command:
+# Uninstallation
+Uninstall the package with the following command:
 
 ```bash
 npm uninstall -g dev-web-server
 ```
 
-# Uses
+# Usage
 
 ## Launch server
 To launch the web server with default parameters:
@@ -78,10 +78,10 @@ To launch the web server with default parameters:
 dev-web-server
 ```
 
-With this command, the application will create a web server :
-- on URL `http://localhost:8080/`
-- that will target *website root* to the *launching directory*
-- without any time delay
+With this command, the application creates a web server:
+- at the URL `http://localhost:8080/`,
+- serving the *website root* from the *launching directory*,
+- without any delay,
 - without API endpoints.
 
 If the server cannot start (e.g. the port is already in use), an error message is displayed and the application exits with the code `1`.
@@ -91,15 +91,15 @@ If the server cannot start (e.g. the port is already in use), an error message i
 | Parameter   | Description      |
 |------------ | ---------------- |
 | `--help` or `HELP`    |  Display help    |
-| `DOMAIN`    |  To choose a domain (default : `localhost`) |
-| `PORT`      |  To choose a port (default : `8080`) |
-| `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *launching directory*) |
-| `DELAY`     |  Time delay in milliseconds before each server response (default : `0` ms) |
+| `DOMAIN`    |  Domain of the server (default: `localhost`) |
+| `PORT`      |  Port of the server (default: `8080`) |
+| `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default: *launching directory*) |
+| `DELAY`     |  Time delay in milliseconds before each server response (default: `0` ms) |
 | `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
-| `ENDPOINTSROOT` |  Root URL for routing API endpoints (default : `/api`) |
-| `SPA`       |  Activate SPA mode (default : `false`) |
-| `CORS`      |  active CORS headers in responses |
-| `CACHE`     |  allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
+| `ENDPOINTSROOT` |  Root URL for routing API endpoints (default: `/api`) |
+| `SPA`       |  Activate the SPA mode (default: `false`) |
+| `CORS`      |  Activate the CORS headers in responses |
+| `CACHE`     |  Allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
 
 `PORT` has to be an integer between `0` and `65535`, and `DELAY` a positive integer. If a parameter value is missing or invalid, an error message is displayed and the application exits with the code `1`.
 
@@ -109,21 +109,21 @@ If the server cannot start (e.g. the port is already in use), an error message i
 dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js ENDPOINTSROOT /my-api
 ```
 
-This command will launch a web server :
-- listening on all network interfaces (`0.0.0.0`) on port `1234`, e.g. at url `http://localhost:1234/`
-- that will target *website root* to the directory `..\rep\httpdocs\`
-- with a time delay of `2000ms` before each response
+This command launches a web server:
+- listening on all network interfaces (`0.0.0.0`) on port `1234`, e.g. at the URL `http://localhost:1234/`,
+- serving the *website root* from the directory `..\rep\httpdocs\`,
+- with a delay of `2000` ms before each response,
 - with API endpoints defined in the file at path `..\rep\server\my-endpoints.js` accessible at the root URL `/my-api`.
 
 ## The JSON Configuration File
 
-We can use a JSON configuration file at the launching directory : `dev-web-server.json`.
+You can use a JSON configuration file in the launching directory: `dev-web-server.json`.
 Any argument in the command line will override the corresponding one in this file.
 The values are validated like the command line arguments: an invalid value, or a file that is not valid JSON, stops the application with an error message.
 
-The JSON configuration file has to contain the following properties:
+The JSON configuration file can contain the following properties:
 
-| Property | Type | Description | default value |
+| Property | Type | Description | Default value |
 | --- | --- | --- | --- |
 | domain | `string` | Domain name of the server | `localhost` |
 | port | `numeric` | Port number of the server | `8080` |
@@ -135,8 +135,7 @@ The JSON configuration file has to contain the following properties:
 | withCORS | `boolean` | Activate CORS headers in responses | `false` |
 | withCache | `boolean` | Allow browser caching (if `false`, responses are sent with a `Cache-Control: no-cache` header) | `false` |
 
-
-example :
+Example:
 
 ```JSON
 {
@@ -151,13 +150,13 @@ example :
 
 ## Definition of the API endpoints file
 
-The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` hash object. Each one of its properties is endpoint declaration: the key is the URL part string before the endpoints root url (default: `/api`) and the value is a `function` to execute.
+The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` object. Each of its properties declares an endpoint: the key is the URL path after the endpoints root URL (default: `/api`), and the value is the `function` to execute.
 
 The file can be an ES module (`export default { ... }`) or a CommonJS module (`module.exports = { ... }`). Its format is chosen by [NodeJS] as usual: the `.mjs` and `.cjs` extensions, or the `type` field of the nearest `package.json` for a `.js` file.
 
 ### Endpoint function
 
-The endpoint function permits to define the response. It takes in arguments:
+The endpoint function sends the response. It takes the following arguments:
 
 | Argument | Type | Description |
 | --- | --- | --- |
@@ -171,31 +170,31 @@ If the endpoint function throws an exception, the server responds with a `500` e
 
 #### Successful callback
 
-The `sendSuccess` callback allows to send a successful response. It contains the result object of the request. It takes in arguments:
+The `sendSuccess` callback sends a successful response with the result object of the request. It takes the following arguments:
 
 | Argument | Type | Description |
 | --- | --- | --- |
 | req | `Request` | [NodeJS] request object |
 | res | `Response` | [NodeJS] response object |
 | result | `Object` | Result object of the request |
-| jsonpCallback | 'string' | **[optional]** JSONP callback function name to activate JSONP response |
+| jsonpCallback | `string` | **[optional]** JSONP callback function name to activate JSONP response |
 
 A JSONP response is sent with the `application/javascript` content type. The callback name has to be a JavaScript identifier or a dotted path of identifiers (e.g. `myCallback` or `app.callbacks.done`): otherwise a `400` JSON error is sent.
 
 #### Failed callback
 
-The `sendError` callback allows to send a failed response. It contains the error result object of the request. It takes in arguments:
+The `sendError` callback sends an error response. It takes the following arguments:
 
-| Arguments | Types | Description |
+| Argument | Type | Description |
 | --- | --- | --- |
 | req | `Request` | [NodeJS] request object |
 | res | `Response` | [NodeJS] response object |
-| httpCode | `Numeric` | `HTTP` code of the response |
+| httpCode | `number` | `HTTP` code of the response |
 | message | `string` | Error text message |
-| result | `Object` | Result object of the request |
-| jsonpCallback | 'string' | **[optional]** JSONP callback function name to activate JSONP response |
+| result | `Object` | **[optional]** Result object of the request: the `error` property is added to it |
+| jsonpCallback | `string` | **[optional]** JSONP callback function name to activate JSONP response |
 
-Example :
+Example:
 
 ```js
 var Repository = {
@@ -205,7 +204,7 @@ var Repository = {
 export default {
   '/example': function (req, res, params, sendSuccess, sendError) {
 
-    // Response result is: '{"test":"coucou","count":1}'.
+    // Response result is: '{"test":"coucou","count":0}', then 1, 2...
     // HTTP code is 200
     sendSuccess(req, res, {
       test: 'coucou',
@@ -216,7 +215,7 @@ export default {
 
   '/exampleJSONP': function (req, res, params, sendSuccess, sendError) {
 
-    // Response result is: myCallback({"test":"coucou","count":1}).
+    // With '?myCallbackName=myCallback', the response result is: myCallback({"test":"coucou","count":0});
     // HTTP code is 200
     sendSuccess(req, res, {
       test: 'coucou',
@@ -227,9 +226,9 @@ export default {
 
   '/exampleError': function (req, res, params, sendSuccess, sendError) {
 
-    // Response result is: '{"error":{"code":401,"message":"An error occurred during doing something"}}'.
+    // Response result is: '{"error":{"code":401,"message":"An error occurred while doing something"}}'.
     // HTTP code is 401
-    sendError(req, res, 401, 'An error occurred during doing something');
+    sendError(req, res, 401, 'An error occurred while doing something');
 
   }
 };
@@ -246,7 +245,7 @@ module.exports = {
 };
 ```
 
-## Stop server
+## Stop the server
 
 To stop the server, type `Ctrl+C`.
 
@@ -258,11 +257,9 @@ Run the unit tests:
 npm test
 ```
 
-The tests run the real command line application and query it over HTTP (see `tests/`).
+The tests run the real command line application and query it over HTTP (see `tests/`). They also run on GitHub Actions with Node.js 22 and 24 for each push and pull request.
 
 The decisions taken on the project are recorded in [docs/decisions.md](docs/decisions.md).
-
-The tests run on GitHub Actions with Node.js 22 and 24 for each push and pull request.
 
 # License
 
