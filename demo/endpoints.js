@@ -2,7 +2,8 @@
 import fs from 'node:fs';
 
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url)));
-const startedAt = new Date();
+// the time this file was (re)loaded: edit this file and the server reloads it.
+const loadedAt = new Date();
 let count = 0;
 
 export default {
@@ -11,7 +12,7 @@ export default {
     sendSuccess(req, res, {
       version,
       node: process.version,
-      startedAt: startedAt.toISOString(),
+      loadedAt: loadedAt.toISOString(),
       count: count++,
     });
   },

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import util from 'node:util';
 import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 import ContentTypes from './content-types.js';
 import createActions from './service.js';
 import DEFAULT from '../config/default.js';
@@ -21,23 +22,66 @@ const HttpServer = function (config) {
   const logger = createLogger(config.isQuiet);
   let service;
 
+  // version of the endpoints file, incremented at each reload.
+  let endPointsVersion = 0;
+
   /**
    * loads the endpoints file. It can be a CommonJS module (module.exports)
    * or an ES module (export default).
-   * @returns {Promise<Object>}
+   * @returns {Promise<Object|null>} the endpoints, or null if the file cannot be loaded.
    */
   const loadEndPoints = async function loadEndPoints() {
-    if (!config.endPointsFilePath) {
-      return {};
-    }
-
+    const filePath = config.endPointsFilePath;
+    const version = endPointsVersion++;
     try {
-      const module = await import(pathToFileURL(config.endPointsFilePath).href);
+      // a new version is imported with a new url, and a CommonJS module is removed from the require cache.
+      delete createRequire(import.meta.url).cache[filePath];
+      const url = pathToFileURL(filePath).href + (version ? `?version=${version}` : '');
+      const module = await import(url);
       return module.default || {};
     } catch (e) {
       logger.error(style('red', '[ERROR]'), 'cannot load endpoints file.');
       logger.error(style('red', e.stack || e.toString()));
-      return {};
+      return null;
+    }
+  };
+
+  /**
+   * watches the endpoints file and reloads it when it changes. If the new
+   * version cannot be loaded, the previous endpoints are kept.
+   * The directory is watched, as some editors replace the file when saving it.
+   * @returns {fs.FSWatcher|null}
+   */
+  const watchEndPoints = function watchEndPoints() {
+    const fileName = path.basename(config.endPointsFilePath);
+    let timer = null;
+
+    const reload = async function reload() {
+      if (!isFile(config.endPointsFilePath)) {
+        return;
+      }
+
+      const endPoints = await loadEndPoints();
+      if (endPoints === null) {
+        logger.error(style('red', '[ERROR]'), 'the endpoints file is not reloaded: the previous endpoints are kept.');
+        return;
+      }
+
+      service.setEndPoints(endPoints);
+      logger.request(style('cyan', 'Endpoints file reloaded:'), Object.keys(endPoints).join(', '));
+    };
+
+    try {
+      return fs.watch(path.dirname(config.endPointsFilePath), function (event, changedFile) {
+        if (changedFile === fileName) {
+          // an editor can trigger several events for one save.
+          clearTimeout(timer);
+          timer = setTimeout(reload, 100);
+        }
+      });
+    } catch (e) {
+      logger.error(style('red', '[ERROR]'), 'cannot watch the endpoints file: ' + e.message);
+      return null;
     }
   };
 
@@ -167,7 +211,7 @@ const HttpServer = function (config) {
   const start = async function start() {
     service = createActions({
       delay: config.delay,
-      endPoints: await loadEndPoints(),
+      endPoints: config.endPointsFilePath ? (await loadEndPoints()) || {} : {},
       withCORS: config.withCORS,
       withCache: config.withCache,
       logger: logger,
@@ -279,6 +323,12 @@ const HttpServer = function (config) {
         resolve();
       });
     });
+
+    // watches the endpoints file once the server listens (a watcher keeps the process running).
+    if (config.endPointsFilePath) {
+      const watcher = watchEndPoints();
+      server.on('close', () => watcher?.close());
+    }
 
     console.log('Server running at', style(['yellow', 'underline'], util.format('http://%s:%s/', config.domain, config.port)));
     console.log('Type [Ctrl+C] to stop the server.');
