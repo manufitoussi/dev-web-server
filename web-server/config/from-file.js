@@ -12,7 +12,12 @@ const NAME = JSON.parse(fs.readFileSync(new URL('../../package.json', import.met
 export default function parseConfigFile(config) {
   const configFilePath = path.resolve(process.cwd(), `${NAME}.json`);
   if (fs.existsSync(configFilePath)) {
-    const fileConfig = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+    let fileConfig;
+    try {
+      fileConfig = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+    } catch (e) {
+      throw new Error(`cannot read ${NAME}.json: ${e.message}`);
+    }
     if (fileConfig) {
       // the paths are relative to the launching directory (null means no endpoints file).
       if (typeof fileConfig.endPointsFilePath === 'string') {

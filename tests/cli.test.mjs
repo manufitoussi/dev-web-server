@@ -77,6 +77,32 @@ describe('server start', () => {
   });
 });
 
+describe('invalid parameters', () => {
+  let project;
+
+  before(() => project = makeProject({ 'index.html': 'root index' }));
+  after(() => removeProject(project));
+
+  const cases = [
+    [['PORT', 'abc'], /invalid port "abc": it has to be an integer between 0 and 65535/],
+    [['PORT', '70000'], /invalid port "70000"/],
+    [['PORT', '80.5'], /invalid port "80.5"/],
+    [['DELAY', '-5'], /invalid delay "-5"/],
+    [['DELAY', 'soon'], /invalid delay "soon"/],
+    [['PORT'], /the PORT parameter needs a value/],
+    [['SPA', 'BASEDIR'], /the BASEDIR parameter needs a value/],
+  ];
+
+  for (const [args, message] of cases) {
+    it(`exits with an error for ${args.join(' ')}`, async () => {
+      const { code, output } = await runCli(['DOMAIN', '127.0.0.1', ...args], { cwd: project });
+      assert.strictEqual(code, 1);
+      assert.match(output, /cannot start the server/);
+      assert.match(output, message);
+    });
+  }
+});
+
 describe('configuration file (dev-web-server.json)', () => {
   let project, port;
 
@@ -139,6 +165,48 @@ describe('configuration file (dev-web-server.json)', () => {
       assert.strictEqual((await request(otherPort, '/')).body, 'launching dir');
     } finally {
       await server.stop();
+      removeProject(other);
+    }
+  });
+
+  it('accepts numeric strings for port and delay', async () => {
+    const otherPort = await freePort();
+    const other = makeProject({
+      'index.html': 'root index',
+      'dev-web-server.json': JSON.stringify({ domain: '127.0.0.1', port: String(otherPort), delay: '0' }),
+    });
+    const server = await startCli([], { cwd: other, port: otherPort });
+    try {
+      assert.strictEqual((await request(otherPort, '/')).body, 'root index');
+    } finally {
+      await server.stop();
+      removeProject(other);
+    }
+  });
+
+  it('exits with an error when its values are invalid', async () => {
+    const other = makeProject({ 'dev-web-server.json': JSON.stringify({ port: 'abc' }) });
+    try {
+      const { code, output } = await runCli([], { cwd: other });
+      assert.strictEqual(code, 1);
+      assert.match(output, /invalid port "abc"/);
+    } finally {
+      removeProject(other);
+    }
+  });
+
+  it('exits with an error when it is not valid JSON', async () => {
+    const other = makeProject({ 'dev-web-server.json': '{ port: 8080 }' });
+    try {
+      const { code, output } = await runCli([], { cwd: other });
+      assert.strictEqual(code, 1);
+      assert.match(output, /cannot start the server: cannot read dev-web-server\.json/);
+
+      // the help does not need the configuration file.
+      const help = await runCli(['HELP'], { cwd: other });
+      assert.strictEqual(help.code, 0);
+      assert.match(help.output, /Parameters:/);
+    } finally {
       removeProject(other);
     }
   });

@@ -13,9 +13,9 @@ import defaultConfig from './config/default.js';
 import configFromDefault from './config/from-default.js';
 import configFromCLI from './config/from-cli.js';
 import configFromFile from './config/from-file.js';
+import validateConfig from './config/validate.js';
 
 const VERSION = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url))).version;
-const config = configFromCLI(configFromFile(configFromDefault(defaultConfig)), process.argv);
 
 console.log(style(['bold', 'bgGreenBright'], ' DEV WEB SERVER '), ' v' + VERSION);
 console.log();
@@ -42,9 +42,10 @@ if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
 }
 
 // start the web server.
-var httpServer = new HttpServer(config);
+let config;
 try {
-  await httpServer.start();
+  config = validateConfig(configFromCLI(configFromFile(configFromDefault(defaultConfig)), process.argv));
+  await new HttpServer(config).start();
 } catch (e) {
   const reason = e.code === 'EADDRINUSE' ?
     `the port ${config.port} is already in use on ${config.domain}.` :

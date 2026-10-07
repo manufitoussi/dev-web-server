@@ -97,6 +97,8 @@ If the server cannot start (e.g. the port is already in use), an error message i
 | `CORS`      |  active CORS headers in responses |
 | `CACHE`     |  allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
 
+`PORT` has to be an integer between `0` and `65535`, and `DELAY` a positive integer. If a parameter value is missing or invalid, an error message is displayed and the application exits with the code `1`.
+
 ## Examples
 
 ```bash
@@ -113,6 +115,7 @@ This command will launch a web server :
 
 We can use a JSON configuration file at the launching directory : `dev-web-server.json`.
 Any argument in the command line will override the corresponding one in this file.
+The values are validated like the command line arguments: an invalid value, or a file that is not valid JSON, stops the application with an error message.
 
 The JSON configuration file has to contain the following properties:
 
