@@ -103,9 +103,11 @@ var HttpServer = function (config) {
           url.pathname = config.root;
         }
 
-        if (url.pathname.startsWith(config.endPointsRoot)) {
+        // endpoints root without its trailing slash (e.g. '/api/' -> '/api').
+        const endPointsRoot = config.endPointsRoot.replace(/\/+$/, '');
+        if (url.pathname === endPointsRoot || url.pathname.startsWith(endPointsRoot + '/')) {
           // this is an endpoint request.
-          const endPoint = url.pathname.substring(config.endPointsRoot.length);
+          const endPoint = url.pathname.substring(endPointsRoot.length);
           console.log('endPoint:', endPoint);
           service.runEndPoint(req, res, endPoint);
           return;
