@@ -93,6 +93,10 @@ This file records the decisions taken on the project, with their context, so tha
 **Decision.** `npm start` serves a test card (`demo/public/`, endpoints in `demo/endpoints.js`), like a TV test card: color bars, a clock, and checks run from the browser for each feature, green, red or blue (information on the active options). It is not published on npm. A node test checks that the files and endpoints used by the test card answer; the page itself is checked in a browser during the development, not in the CI, to keep the CI without a browser.
 **Consequences.** The test script lists the test files explicitly (`tests/*.test.mjs`), as `test-card.js` matches a default test file name pattern of `node --test`.
 
+## 2026-10-07 — Routes with parameters
+
+**Decision.** An endpoint key can contain parameters (`/users/:id`). The exact keys are matched first, then the routes with the same number of segments: the route with the most static segments wins, then the first declared, so the result does not depend on the declaration order in the usual cases. A parameter matches one non-empty segment, decoded. The route parameters are in `req.params` and override the query string and body fields in `params`.
+
 ## Pending — Next version number
 
 The ES modules migration and the async `start()` are breaking changes for the code using the internal modules: the next release should be `3.0.0`. The version stays `2.0.0` until the release is decided.

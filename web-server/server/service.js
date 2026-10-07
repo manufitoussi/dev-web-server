@@ -115,11 +115,12 @@ const Service = function (config) {
   const runEndPoint = function (req, res, endPointName) {
     logger.request(style('cyan', 'Endpoint: ' + endPointName));
     setTimeout(function () {
-      const endPoint = endPoints[endPointName];
-      if (endPoint === undefined) {
+      const found = findEndPoint(endPointName);
+      if (!found) {
         sendError(req, res, 404, 'endPoint not found');
         return;
       }
+      const endPoint = found.endPoint;
 
       if (req.method === 'OPTIONS') {
         sendSuccess(req, res, '');
@@ -144,10 +145,64 @@ const Service = function (config) {
         }
 
         req.query = parseQuery(req.url);
-        req.params = {};
+        req.params = found.params;
         callEndPoint(endPoint, req, res, mergeParams(req));
       });
     }, delay);
+  };
+
+  /**
+   * finds the endpoint of a path: the endpoint with the same key, or else the
+   * endpoint whose key is a route matching the path (e.g. '/users/:id' for
+   * '/users/42'). If several routes match, the one with the most static
+   * segments wins, then the first declared.
+   * @param  {String} endPointName path after the endpoints root (e.g. '/users/42').
+   * @return {{ endPoint: Function, params: Object }|null}
+   */
+  const findEndPoint = function (endPointName) {
+    if (Object.hasOwn(endPoints, endPointName)) {
+      return { endPoint: endPoints[endPointName], params: {} };
+    }
+
+    const segments = endPointName.split('/');
+    let best = null;
+    for (const key of Object.keys(endPoints)) {
+      const routeSegments = key.split('/');
+      if (!key.includes('/:') || routeSegments.length !== segments.length) {
+        continue;
+      }
+
+      const params = {};
+      let staticSegments = 0;
+      const matches = routeSegments.every(function (routeSegment, index) {
+        const segment = segments[index];
+        if (routeSegment.startsWith(':') && routeSegment.length > 1) {
+          params[routeSegment.slice(1)] = decodeSegment(segment);
+          return segment !== '';
+        }
+        staticSegments++;
+        return routeSegment === segment;
+      });
+
+      if (matches && (!best || staticSegments > best.staticSegments)) {
+        best = { endPoint: endPoints[key], params, staticSegments };
+      }
+    }
+
+    return best && { endPoint: best.endPoint, params: best.params };
+  };
+
+  /**
+   * decodes a path segment (e.g. 'John%20Doe' -> 'John Doe'), or keeps it if it is malformed.
+   * @param  {String} segment
+   * @return {String}
+   */
+  const decodeSegment = function (segment) {
+    try {
+      return decodeURIComponent(segment);
+    } catch (e) {
+      return segment;
+    }
   };
 
   /**
