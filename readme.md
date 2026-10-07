@@ -18,12 +18,14 @@ You can:
 - choose a port,
 - choose the directory of the *website root*,
 - add a delay before each response,
-- define a set of API endpoints,
+- define a set of API endpoints, with routes like `/users/:id`, reloaded when their file changes,
 - choose the root URL of the API endpoints,
 - activate the SPA mode,
 - activate the CORS headers,
 - allow browser caching (responses are sent with `Cache-Control: no-cache` by default),
 - hide the request logs.
+
+The files are streamed with `Range` support (videos and audio files can be played from any position). A test card shows all of this live: see [Test card](#test-card).
 
 ## Default webpage
 
@@ -37,11 +39,11 @@ The web server supports using `favicon.ico`. It has to be located at the site ro
 
 ## Endpoint verbs
 
-The web server supports all endpoint verbs.
+The endpoints accept all the HTTP verbs: the endpoint function gets the request and chooses its response.
 
 ## SPA mode
 
-In SPA mode, the requests of missing files are answered with your base file (default: `index.html`). This is useful for single page applications without a hash-based routing system.
+In SPA mode, the requests of missing files are answered with your base file (default: `index.html`, see `root` in the configuration file). This is useful for single page applications without a hash-based routing system.
 
 ## Content types
 
@@ -83,6 +85,12 @@ To launch the web server with default parameters:
 dev-web-server
 ```
 
+or, without installing it:
+
+```bash
+npx dev-web-server
+```
+
 With this command, the application creates a web server:
 - at the URL `http://localhost:8080/`,
 - serving the *website root* from the *launching directory*,
@@ -95,31 +103,31 @@ If the server cannot start (e.g. the port is already in use), an error message i
 
 | Parameter   | Description      |
 |------------ | ---------------- |
-| `--help` or `HELP`    |  Display help    |
+| `HELP` (or `--help`, `-h`, `-?`) |  Display the help |
 | `DOMAIN`    |  Domain of the server (default: `localhost`) |
 | `PORT`      |  Port of the server (default: `8080`) |
 | `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default: *launching directory*) |
 | `DELAY`     |  Time delay in milliseconds before each server response (default: `0` ms) |
-| `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
+| `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)*, reloaded when it changes |
 | `ENDPOINTSROOT` |  Root URL for routing API endpoints (default: `/api`) |
 | `SPA`       |  Activate the SPA mode (default: `false`) |
 | `CORS`      |  Activate the CORS headers in responses |
 | `QUIET`     |  No request logs: only the server errors (`5xx` responses, endpoints file loading) are displayed |
 | `CACHE`     |  Allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
 
-`PORT` has to be an integer between `0` and `65535`, and `DELAY` a positive integer. If a parameter value is missing or invalid, an error message is displayed and the application exits with the code `1`.
+`PORT` has to be an integer between `0` and `65535`, and `DELAY` a positive integer or `0`. If a parameter value is missing or invalid, an error message is displayed and the application exits with the code `1`.
 
 ## Examples
 
 ```bash
-dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js ENDPOINTSROOT /my-api
+dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ../rep/httpdocs DELAY 2000 ENDPOINTS ../rep/server/my-endpoints.js ENDPOINTSROOT /my-api
 ```
 
 This command launches a web server:
 - listening on all network interfaces (`0.0.0.0`) on port `1234`, e.g. at the URL `http://localhost:1234/`,
-- serving the *website root* from the directory `..\rep\httpdocs\`,
+- serving the *website root* from the directory `../rep/httpdocs/`,
 - with a delay of `2000` ms before each response,
-- with API endpoints defined in the file at path `..\rep\server\my-endpoints.js` accessible at the root URL `/my-api`.
+- with API endpoints defined in the file `../rep/server/my-endpoints.js`, at the root URL `/my-api`.
 
 ## The JSON Configuration File
 
@@ -132,11 +140,12 @@ The JSON configuration file can contain the following properties:
 | Property | Type | Description | Default value |
 | --- | --- | --- | --- |
 | domain | `string` | Domain name of the server | `localhost` |
-| port | `numeric` | Port number of the server | `8080` |
+| port | `number` | Port number of the server | `8080` |
 | baseDir | `string` | *relative* or *absolute* path to the *website root* | *launching directory* |
-| delay | `numeric` | Time delay in milliseconds before each server response | `0` |
+| delay | `number` | Time delay in milliseconds before each server response | `0` |
 | endPointsFilePath | `string` | *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* | `null` |
 | endPointsRoot | `string` | Root URL for routing API endpoints | `/api` |
+| root | `string` | Base file of the website, served for `/`; its name is the index file of the directories, and it answers the missing files in SPA mode | `/index.html` |
 | isSPA | `boolean` | Activate SPA mode | `false` |
 | withCORS | `boolean` | Activate CORS headers in responses | `false` |
 | isQuiet | `boolean` | No request logs: only the server errors are displayed | `false` |
@@ -236,9 +245,23 @@ export default {
 
   },
 
+  '/users/:id': function (req, res, params, sendSuccess, sendError) {
+
+    // GET /api/users/42?fields=name gives req.params = { id: '42' } and params = { fields: 'name', id: '42' }.
+    sendSuccess(req, res, { id: req.params.id, fields: params.fields });
+
+  },
+
+  '/users': function (req, res, params, sendSuccess, sendError) {
+
+    // POST /api/users with the JSON body {"name":"John"} gives req.body = { name: 'John' }.
+    sendSuccess(req, res, { created: req.body });
+
+  },
+
   '/exampleJSONP': function (req, res, params, sendSuccess, sendError) {
 
-    // With '?myCallbackName=myCallback', the response result is: myCallback({"test":"coucou","count":0});
+    // With '?myCallbackName=myCallback', the response result is: myCallback({"test":"coucou","count":<the next count>});
     // HTTP code is 200
     sendSuccess(req, res, {
       test: 'coucou',
