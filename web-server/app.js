@@ -48,4 +48,12 @@ if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
 
 // start the web server.
 var httpServer = new HttpServer(config);
-await httpServer.start();
+try {
+  await httpServer.start();
+} catch (e) {
+  const reason = e.code === 'EADDRINUSE' ?
+    `the port ${config.port} is already in use on ${config.domain}.` :
+    e.message;
+  console.error(style('red', '[ERROR]'), 'cannot start the server: ' + reason);
+  process.exitCode = 1;
+}

@@ -76,6 +76,8 @@ With this command, the application will create a web server :
 - without any time delay
 - without API endpoints.
 
+If the server cannot start (e.g. the port is already in use), an error message is displayed and the application exits with the code `1`.
+
 ## The CLI Parameters
 
 | Parameter   | Description      |

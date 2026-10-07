@@ -47,6 +47,25 @@ describe('server start', () => {
     }
   });
 
+  it('exits with an error when the port is already in use', async () => {
+    const port = await freePort();
+    const server = await startCli(['DOMAIN', '127.0.0.1', 'PORT', String(port)], { cwd: project, port });
+    try {
+      const { code, output } = await runCli(['DOMAIN', '127.0.0.1', 'PORT', String(port)], { cwd: project });
+      assert.strictEqual(code, 1);
+      assert.match(output, new RegExp(`cannot start the server: the port ${port} is already in use`));
+      assert.doesNotMatch(output, /Server running at/);
+    } finally {
+      await server.stop();
+    }
+  });
+
+  it('exits with an error when the domain cannot be used', async () => {
+    const { code, output } = await runCli(['DOMAIN', 'invalid.invalid', 'PORT', String(await freePort())], { cwd: project });
+    assert.strictEqual(code, 1);
+    assert.match(output, /cannot start the server/);
+  });
+
   it('listens on localhost by default', async () => {
     const port = await freePort();
     const server = await startCli(['PORT', String(port)], { cwd: project, port, host: 'localhost' });

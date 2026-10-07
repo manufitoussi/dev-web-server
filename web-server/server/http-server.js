@@ -78,6 +78,10 @@ var HttpServer = function (config) {
     return !!stats && stats.isDirectory();
   };
 
+  /**
+   * starts the server.
+   * @returns {Promise<http.Server>} resolved when the server listens.
+   */
   var start = async function start() {
     service = createActions({
       delay: config.delay || DEFAULT.delay,
@@ -192,7 +196,16 @@ var HttpServer = function (config) {
 
       render(req.url);
 
-    }).listen(config.port, config.domain);
+    });
+
+    // waits until the server listens (rejects if the port is already in use for example).
+    await new Promise(function (resolve, reject) {
+      server.once('error', reject);
+      server.listen(config.port, config.domain, function () {
+        server.off('error', reject);
+        resolve();
+      });
+    });
 
     console.log('Server running at', style(['yellow', 'underline'], util.format('http://%s:%s/', config.domain, config.port)));
     console.log('Type [Ctrl+C] to stop the server.');
