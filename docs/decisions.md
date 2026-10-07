@@ -35,7 +35,7 @@ This file records the decisions taken on the project, with their context, so tha
 **Context.** The documentation said that `CACHE` adds cache control headers, but without `CACHE` the responses have a `Cache-Control: no-cache` header, and `CACHE` removes it.
 **Decision.** The behavior is kept and the documentation is fixed: changing the behavior would break the existing users.
 
-## 2026-10-07 — Endpoint parameters
+## 2026-10-07 — Endpoint parameters (*replaced by "Merged endpoint parameters"*)
 
 **Context.** The `params` argument of an endpoint is an object for `GET` and `DELETE` (the query string), and the raw body string for the other verbs.
 **Decision.** This behavior is kept and documented: changing it would break the existing endpoints files. A repeated query string key gives an array of values, like `url.parse()` did.
@@ -80,6 +80,12 @@ This file records the decisions taken on the project, with their context, so tha
 
 **Context.** The files were read entirely in memory before being sent, and the `Range` requests were ignored: a video could not be played from any position.
 **Decision.** The files are streamed with `fs.createReadStream`, with a `Content-Length` header. A single `Range` (`bytes=start-end`, `bytes=start-` or `bytes=-length`) gives a `206` response with the requested bytes, a range outside of the file gives a `416` response, and an unsupported range (multiple ranges, other unit) gives the whole file, as allowed by the HTTP specification. The headers are sent once the file is opened, so an opening error still gives a `500` error. `HEAD` gives the headers only.
+
+## 2026-10-07 — Merged endpoint parameters
+
+**Context.** `params` was the query string object for `GET` and `DELETE`, and the raw body string for the other verbs: the endpoints had to parse the body themselves, and lost the query string for a `POST`.
+**Decision.** As the next release is a major version, `params` becomes one object for every verb: the query string parameters, then the body fields, then the route parameters, the last ones winning. The body is parsed according to its content type: JSON (`application/json` or `*+json`), url encoded form, or raw string otherwise. Each source stays available separately: `req.query`, `req.body`, `req.params`. An invalid JSON body gives a `400` error. A JSON body that is not an object (an array for example) is not merged: it is only in `req.body`.
+**Consequences.** The `GET` endpoints keep working. The endpoints reading the raw body from `params` have to use `req.body` (see [upgrade-3.md](upgrade-3.md)).
 
 ## Pending — Next version number
 

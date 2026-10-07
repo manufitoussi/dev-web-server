@@ -43,6 +43,10 @@ export const removeProject = (dir) => fs.rmSync(dir, { recursive: true, force: t
  */
 export const request = (port, requestPath, { method = 'GET', body, host = '127.0.0.1', headers } = {}) =>
   new Promise((resolve, reject) => {
+    // Content-Length is needed for the verbs without chunked encoding by default (e.g. DELETE).
+    if (body !== undefined) {
+      headers = { 'content-length': Buffer.byteLength(body), ...headers };
+    }
     const req = http.request({ host, port, path: requestPath, method, headers }, res => {
       let data = '';
       res.setEncoding('utf8');

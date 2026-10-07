@@ -126,21 +126,64 @@ const Service = function (config) {
         return;
       }
 
-      if (req.method !== 'DELETE' && req.method !== 'GET') {
-        let body = '';
-        req.on('data', function (data) {
-          body += data;
-        });
-        req.on('end', function () {
-          req.body = body;
-          logger.request(style('bold', 'Body: ') + req.body);
-          callEndPoint(endPoint, req, res, req.body);
-        });
-        return;
-      }
+      let rawBody = '';
+      req.setEncoding('utf8');
+      req.on('data', function (data) {
+        rawBody += data;
+      });
+      req.on('end', function () {
+        if (rawBody) {
+          logger.request(style('bold', 'Body: ') + rawBody);
+        }
 
-      callEndPoint(endPoint, req, res, parseQuery(req.url));
+        try {
+          req.body = parseBody(rawBody, req.headers['content-type']);
+        } catch (e) {
+          sendError(req, res, 400, 'invalid JSON body: ' + e.message);
+          return;
+        }
+
+        req.query = parseQuery(req.url);
+        req.params = {};
+        callEndPoint(endPoint, req, res, mergeParams(req));
+      });
     }, delay);
+  };
+
+  /**
+   * parses the body of a request according to its content type.
+   * @param  {String} rawBody
+   * @param  {String} [contentType]
+   * @return {Object|Array|String|Number|Boolean|null|undefined} undefined for an empty body,
+   *  the parsed value for JSON, an object for a url encoded form, the raw string otherwise.
+   * @throws {SyntaxError} for an invalid JSON body.
+   */
+  const parseBody = function (rawBody, contentType) {
+    if (!rawBody) {
+      return undefined;
+    }
+
+    const mimeType = (contentType || '').split(';')[0].trim().toLowerCase();
+    if (mimeType === 'application/json' || mimeType.endsWith('+json')) {
+      return JSON.parse(rawBody);
+    }
+
+    if (mimeType === 'application/x-www-form-urlencoded') {
+      return searchParamsToObject(new URLSearchParams(rawBody));
+    }
+
+    return rawBody;
+  };
+
+  /**
+   * merges the parameters of a request: the query string, the body fields
+   * (when the body is an object) and the route parameters, the last ones winning.
+   * @param  {Request} req
+   * @return {Object}
+   */
+  const mergeParams = function (req) {
+    const body = req.body !== null && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    return Object.assign({}, req.query, body, req.params);
   };
 
   /**
@@ -149,8 +192,17 @@ const Service = function (config) {
    * @return {Object}
    */
   const parseQuery = function (reqUrl) {
+    return searchParamsToObject(new URL(reqUrl, 'http://localhost').searchParams);
+  };
+
+  /**
+   * converts url search params to an object. A repeated key gives an array of values.
+   * @param  {URLSearchParams} searchParams
+   * @return {Object}
+   */
+  const searchParamsToObject = function (searchParams) {
     const query = {};
-    new URL(reqUrl, 'http://localhost').searchParams.forEach(function (value, key) {
+    searchParams.forEach(function (value, key) {
       if (!Object.prototype.hasOwnProperty.call(query, key)) {
         query[key] = value;
       } else {

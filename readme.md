@@ -169,11 +169,23 @@ The endpoint function sends the response. It takes the following arguments:
 | --- | --- | --- |
 | req | `Request` | [NodeJS] request object |
 | res | `Response` | [NodeJS] response object |
-| params | `Object` or `string` | For `GET` and `DELETE` requests: hash object of the `query string` parameters (a repeated key gives an array of values). For the other verbs: the raw request `body` string |
+| params | `Object` | All the parameters of the request: the `query string` parameters, the `body` fields (JSON or url encoded form object) and the route parameters, the last ones winning |
 | sendSuccess | `Function` | Callback function to call to send a successful response |
 | sendError | `Function` | Callback function to call to send a failed response |
 
 If the endpoint function throws an exception, the server responds with a `500` error and keeps running.
+
+The parameters are also available separately on the request object:
+
+| Property | Type | Description |
+| --- | --- | --- |
+| req.query | `Object` | The `query string` parameters (a repeated key gives an array of values) |
+| req.body | any | The request body: the parsed value for a JSON body (`application/json` or `*+json`), an object for a url encoded form (`application/x-www-form-urlencoded`), the raw string otherwise, `undefined` if empty |
+| req.params | `Object` | The route parameters |
+
+An invalid JSON body gives a `400` JSON error, without calling the endpoint.
+
+Example: `POST /api/users?notify=true` with the JSON body `{"name":"John"}` gives `params` = `{ notify: 'true', name: 'John' }`.
 
 #### Successful callback
 
