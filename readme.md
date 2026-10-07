@@ -22,7 +22,9 @@ You can specify :
 
 ## Default webpage
 
-The default webpage at the *website root* is `index.html`.
+The default webpage at the *website root* is `index.html`. A request to a directory (e.g. `/docs/` or `/docs`) serves its `index.html` file.
+
+File names with special characters are supported: the requested URL is decoded (e.g. `/my%20file.txt` serves `my file.txt`). Files outside of the *website root* are never served.
 
 ## Favicon
 
@@ -92,11 +94,11 @@ With this command, the application will create a web server :
 ## Examples
 
 ```bash
-dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js ENDPONTSROOT /my-api
+dev-web-server DOMAIN 0.0.0.0 PORT 1234 BASEDIR ..\rep\httpdocs DELAY 2000 ENDPOINTS ..\rep\server\my-endpoints.js ENDPOINTSROOT /my-api
 ```
 
 This command will launch a web server :
-- accessible at url `http://mon-domain.fr:1234/`
+- listening on all network interfaces (`0.0.0.0`) on port `1234`, e.g. at url `http://localhost:1234/`
 - that will target *website root* to the directory `..\rep\httpdocs\`
 - with a time delay of `2000ms` before each response
 - with API endpoints defined in the file at path `..\rep\server\my-endpoints.js` accessible at the root URL `/my-api`.
@@ -146,9 +148,11 @@ The endpoint function permits to define the response. It takes in arguments:
 | --- | --- | --- |
 | req | `Request` | [NodeJS] request object |
 | res | `Response` | [NodeJS] response object |
-| params | `Object` | Hash object parameters of the request (taken from `body` or the `query string`) |
+| params | `Object` or `string` | For `GET` and `DELETE` requests: hash object of the `query string` parameters (a repeated key gives an array of values). For the other verbs: the raw request `body` string |
 | sendSuccess | `Function` | Callback function to call to send a successful response |
 | sendError | `Function` | Callback function to call to send a failed response |
+
+If the endpoint function throws an exception, the server responds with a `500` error and keeps running.
 
 #### Successful callback
 
@@ -206,7 +210,7 @@ module.exports = {
 
   '/exampleError': function (req, res, params, sendSuccess, sendError) {
 
-    // Response result is: '{"code":401,"message":"An error occurred during doing something"}'.
+    // Response result is: '{"error":{"code":401,"message":"An error occurred during doing something"}}'.
     // HTTP code is 401
     sendError(req, res, 401, 'An error occurred during doing something');
 
@@ -218,6 +222,14 @@ module.exports = {
 ## Stop server
 
 To stop the server, type `Ctrl+C`.
+
+# Development
+
+Run the unit tests:
+
+```bash
+npm test
+```
 
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/
