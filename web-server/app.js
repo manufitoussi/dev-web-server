@@ -11,9 +11,9 @@
  *  TODO: complete arguments.
  */
 
-import 'colors';
 import fs from 'node:fs';
 import HttpServer from './server/http-server.js';
+import style from './tools/style.js';
 import defaultConfig from './config/default.js';
 import configFromDefault from './config/from-default.js';
 import configFromCLI from './config/from-cli.js';
@@ -22,22 +22,22 @@ import configFromFile from './config/from-file.js';
 const VERSION = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url))).version;
 const config = configFromCLI(configFromFile(configFromDefault(defaultConfig)), process.argv);
 
-console.log(' DEV WEB SERVER '.bold.bgBrightGreen, ' v' + VERSION);
+console.log(style(['bold', 'bgGreenBright'], ' DEV WEB SERVER '), ' v' + VERSION);
 console.log();
 
 // help message.
 if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
   || process.argv.indexOf('-h') !== -1 || process.argv.indexOf('-?') !== -1) {
-  console.log('Parameters:'.bold.green);
-  console.log('  BASEDIR'.bold.blue, '<x>'.italic.blue, ': path to dir containing httpdocs root (default: current dir).');
-  console.log('  PORT'.bold.blue, '<x>'.italic.blue, ': port of the wev server (default: 8080).');
-  console.log('  ENDPOINTS'.bold.blue,'<x>'.italic.blue, ': relative path to the endpoints definition file.');
-  console.log('  ENDPOINTSROOT'.bold.blue,'<x>'.italic.blue, ':root url for the endpoints (default: /api).');
-  console.log('  SPA'.bold.blue, ': single page application mode.');
-  console.log('  DELAY'.bold.blue,'<x>'.italic.blue, ': delay in ms before response (default: 0).');
-  console.log('  CORS'.bold.blue, ': add CORS headers.');
-  console.log('  CACHE'.bold.blue, ': allow browser caching (default: responses are sent with a "Cache-Control: no-cache" header).');
-  console.log('  HELP'.bold.blue, ': this help message.');
+  console.log(style(['bold', 'green'], 'Parameters:'));
+  console.log(style(['bold', 'blue'], '  BASEDIR'), style(['italic', 'blue'], '<x>'), ': path to dir containing httpdocs root (default: current dir).');
+  console.log(style(['bold', 'blue'], '  PORT'), style(['italic', 'blue'], '<x>'), ': port of the wev server (default: 8080).');
+  console.log(style(['bold', 'blue'], '  ENDPOINTS'), style(['italic', 'blue'], '<x>'), ': relative path to the endpoints definition file.');
+  console.log(style(['bold', 'blue'], '  ENDPOINTSROOT'), style(['italic', 'blue'], '<x>'), ':root url for the endpoints (default: /api).');
+  console.log(style(['bold', 'blue'], '  SPA'), ': single page application mode.');
+  console.log(style(['bold', 'blue'], '  DELAY'), style(['italic', 'blue'], '<x>'), ': delay in ms before response (default: 0).');
+  console.log(style(['bold', 'blue'], '  CORS'), ': add CORS headers.');
+  console.log(style(['bold', 'blue'], '  CACHE'), ': allow browser caching (default: responses are sent with a "Cache-Control: no-cache" header).');
+  console.log(style(['bold', 'blue'], '  HELP'), ': this help message.');
 
   console.log() // empty line.
   console.log('You can also use a configuration file. See https://www.npmjs.com/package/dev-web-server for more information.');

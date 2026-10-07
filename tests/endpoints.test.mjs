@@ -130,7 +130,7 @@ describe('endpoints', () => {
     }
   });
 
-  it.todo('does not route the paths only starting like the endpoints root (e.g. /apifoo)', async () => {
+  it('does not route the paths only starting like the endpoints root (e.g. /apifoo)', async () => {
     const res = await request(server.port, '/apifoo');
     assert.match(res.headers['content-type'], /text\/html/);
   });
@@ -159,6 +159,16 @@ describe('endpoints options', () => {
     try {
       assert.deepStrictEqual(JSON.parse((await request(server.port, '/my-api/hello?name=a')).body), { hello: 'a' });
       assert.strictEqual((await request(server.port, '/api/hello')).status, 404);
+    } finally {
+      await server.stop();
+    }
+  });
+
+  it('accepts an ENDPOINTSROOT with a trailing slash', async () => {
+    const server = await start(['ENDPOINTS', 'server/endpoints.js', 'ENDPOINTSROOT', '/my-api/', 'BASEDIR', 'httpdocs'], { cwd: project });
+    try {
+      assert.deepStrictEqual(JSON.parse((await request(server.port, '/my-api/hello?name=a')).body), { hello: 'a' });
+      assert.match((await request(server.port, '/my-apifoo')).headers['content-type'], /text\/html/);
     } finally {
       await server.stop();
     }

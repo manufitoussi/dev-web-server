@@ -1,4 +1,3 @@
-import 'colors';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,6 +7,7 @@ import ContentTypes from './content-types.js';
 import createActions from './service.js';
 import DEFAULT from '../config/default.js';
 import merge from '../tools/merge.js';
+import style from '../tools/style.js';
 import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
 
 /**
@@ -33,8 +33,8 @@ var HttpServer = function (config) {
       const module = await import(pathToFileURL(config.endPointsFilePath).href);
       return module.default || {};
     } catch (e) {
-      console.error('[ERROR]'.red, 'cannot load endpoints file.');
-      console.error((e.stack || e.toString()).red);
+      console.error(style('red', '[ERROR]'), 'cannot load endpoints file.');
+      console.error(style('red', e.stack || e.toString()));
       return {};
     }
   };
@@ -42,7 +42,7 @@ var HttpServer = function (config) {
   var html = {
     error: function error(errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
-      console.error('[ERROR]'.red, opt_code.toString().bold.red, errMsg.red);
+      console.error(style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
       var htmlError = '<div style="color: red;">' + errMsg + '</div>';
       if(config.withCORS) {
         addCorsHeaders(res)
@@ -88,9 +88,9 @@ var HttpServer = function (config) {
 
     var server = http.createServer(function (req, res) {
       console.log('------------------------');
-      console.log('time:', (new Date()).toISOString().bold);
-      console.log('method: ' + req.method.bold.yellow);
-      console.log('url: ' + req.url.toString().bold.green);
+      console.log('time:', style('bold', (new Date()).toISOString()));
+      console.log('method: ' + style(['bold', 'yellow'], req.method));
+      console.log('url: ' + style(['bold', 'green'], req.url));
 
       var render = function render(askedUrl) {
         var url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
@@ -103,9 +103,11 @@ var HttpServer = function (config) {
           url.pathname = config.root;
         }
 
-        if (url.pathname.startsWith(config.endPointsRoot)) {
+        // endpoints root without its trailing slash (e.g. '/api/' -> '/api').
+        const endPointsRoot = config.endPointsRoot.replace(/\/+$/, '');
+        if (url.pathname === endPointsRoot || url.pathname.startsWith(endPointsRoot + '/')) {
           // this is an endpoint request.
-          const endPoint = url.pathname.substring(config.endPointsRoot.length);
+          const endPoint = url.pathname.substring(endPointsRoot.length);
           console.log('endPoint:', endPoint);
           service.runEndPoint(req, res, endPoint);
           return;
@@ -122,7 +124,7 @@ var HttpServer = function (config) {
 
         // full path of the file
         var filePath = path.resolve(config.baseDir, '.' + pathname);
-        console.log('filePath: ' + filePath.bold);
+        console.log('filePath: ' + style('bold', filePath));
 
         // refuses any path outside of the base directory (e.g. '/..%2f..%2fetc/passwd').
         var baseDir = path.resolve(config.baseDir);
@@ -139,23 +141,23 @@ var HttpServer = function (config) {
         if (config.isSPA && !isFile(filePath)) {
           // if the file does not exist, the server will return the SPA root file.
           filePath = path.resolve(config.baseDir, '.' + config.root);
-          console.log('Redirect to SPA root file:', filePath.bold);
+          console.log('Redirect to SPA root file:', style('bold', filePath));
         }
 
         // file name with extension
         var baseFile = path.basename(filePath);
-        console.log('base: ' + baseFile.bold);
+        console.log('base: ' + style('bold', baseFile));
 
         // file extension
         var fileExt = path.extname(filePath);
-        console.log('ext: ' + fileExt.bold);
+        console.log('ext: ' + style('bold', fileExt));
 
         // the full path of directory that contains the file.
         var dirFile = path.dirname(filePath);
-        console.log('dir: ' + dirFile.bold);
+        console.log('dir: ' + style('bold', dirFile));
 
         const contentType = ContentTypes.lookup(fileExt);
-        console.log('content type:', contentType.bold);
+        console.log('content type:', style('bold', contentType));
 
         // displays the requested file:
         if (isFile(filePath)) {
@@ -192,7 +194,7 @@ var HttpServer = function (config) {
 
     }).listen(config.port, config.domain);
 
-    console.log('Server running at', util.format('http://%s:%s/'.yellow.underline, config.domain, config.port));
+    console.log('Server running at', style(['yellow', 'underline'], util.format('http://%s:%s/', config.domain, config.port)));
     console.log('Type [Ctrl+C] to stop the server.');
     return server;
   };

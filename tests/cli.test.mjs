@@ -124,7 +124,7 @@ describe('configuration file (dev-web-server.json)', () => {
     }
   });
 
-  it.todo('accepts a null endPointsFilePath', async () => {
+  it('accepts a null endPointsFilePath', async () => {
     const otherPort = await freePort();
     const other = makeProject({
       'index.html': 'root index',

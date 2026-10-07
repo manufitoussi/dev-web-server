@@ -10,10 +10,11 @@ export default function parceConfigFile(config) {
     // parses it
     var defaultConfig = JSON.parse(fs.readFileSync(packageJSONPath, 'utf8'));
     if (defaultConfig) {
-      defaultConfig.endPointsFilePath = defaultConfig.hasOwnProperty('endPointsFilePath') ?
-        path.resolve(process.cwd(), defaultConfig.endPointsFilePath) :
-        defaultConfig.endPointsFilePath;
-      defaultConfig.baseDir = defaultConfig.hasOwnProperty('baseDir') ?
+      // the paths are relative to the launching directory (null means no endpoints file).
+      if (typeof defaultConfig.endPointsFilePath === 'string') {
+        defaultConfig.endPointsFilePath = path.resolve(process.cwd(), defaultConfig.endPointsFilePath);
+      }
+      defaultConfig.baseDir = typeof defaultConfig.baseDir === 'string' ?
         path.resolve(process.cwd(), defaultConfig.baseDir) :
         process.cwd();
       config = merge(config, defaultConfig);

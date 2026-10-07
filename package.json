@@ -19,7 +19,6 @@
     "dev-web-server": "web-server/app.js"
   },
   "dependencies": {
-    "colors": "1.4.0",
     "mime-types": "^2.1.35"
   },
   "engines": {
