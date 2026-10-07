@@ -22,7 +22,8 @@ You can:
 - choose the root URL of the API endpoints,
 - activate the SPA mode,
 - activate the CORS headers,
-- allow browser caching (responses are sent with `Cache-Control: no-cache` by default).
+- allow browser caching (responses are sent with `Cache-Control: no-cache` by default),
+- hide the request logs.
 
 ## Default webpage
 
@@ -99,6 +100,7 @@ If the server cannot start (e.g. the port is already in use), an error message i
 | `ENDPOINTSROOT` |  Root URL for routing API endpoints (default: `/api`) |
 | `SPA`       |  Activate the SPA mode (default: `false`) |
 | `CORS`      |  Activate the CORS headers in responses |
+| `QUIET`     |  No request logs: only the server errors (`5xx` responses, endpoints file loading) are displayed |
 | `CACHE`     |  Allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
 
 `PORT` has to be an integer between `0` and `65535`, and `DELAY` a positive integer. If a parameter value is missing or invalid, an error message is displayed and the application exits with the code `1`.
@@ -133,6 +135,7 @@ The JSON configuration file can contain the following properties:
 | endPointsRoot | `string` | Root URL for routing API endpoints | `/api` |
 | isSPA | `boolean` | Activate SPA mode | `false` |
 | withCORS | `boolean` | Activate CORS headers in responses | `false` |
+| isQuiet | `boolean` | No request logs: only the server errors are displayed | `false` |
 | withCache | `boolean` | Allow browser caching (if `false`, responses are sent with a `Cache-Control: no-cache` header) | `false` |
 
 Example:

@@ -17,7 +17,7 @@ describe('help', () => {
       assert.strictEqual(code, 0);
       assert.match(output, /DEV WEB SERVER/);
       assert.match(output, /Parameters:/);
-      for (const param of ['BASEDIR', 'PORT', 'ENDPOINTS', 'ENDPOINTSROOT', 'SPA', 'DELAY', 'CORS', 'CACHE', 'HELP']) {
+      for (const param of ['BASEDIR', 'PORT', 'ENDPOINTS', 'ENDPOINTSROOT', 'SPA', 'DELAY', 'CORS', 'CACHE', 'QUIET', 'HELP']) {
         assert.match(output, new RegExp(`\\b${param}\\b`), param);
       }
     });
@@ -73,6 +73,74 @@ describe('server start', () => {
       assert.strictEqual((await request(port, '/', { host: 'localhost' })).body, 'root index');
     } finally {
       await server.stop();
+    }
+  });
+});
+
+describe('logs', () => {
+  let project;
+
+  before(() => project = makeProject({
+    'index.html': 'root index',
+    'endpoints.js': `module.exports = {
+      '/hello': (req, res, params, sendSuccess) => sendSuccess(req, res, { hello: 'world' }),
+      '/denied': (req, res, params, sendSuccess, sendError) => sendError(req, res, 403, 'denied endpoint'),
+      '/boom': () => { throw new Error('boom endpoint'); },
+    };`,
+  }));
+  after(() => removeProject(project));
+
+  // runs some requests and returns the server output.
+  const outputOf = async (args, port) => {
+    const server = await startCli(['DOMAIN', '127.0.0.1', 'PORT', String(port), 'ENDPOINTS', 'endpoints.js', ...args], { cwd: project, port });
+    try {
+      for (const p of ['/', '/missing.txt', '/api/hello', '/api/denied', '/api/boom']) {
+        await request(port, p);
+      }
+      // the logs are written asynchronously: waits for the last one (displayed in both modes).
+      for (let i = 0; i < 50 && !/boom endpoint/.test(server.output()); i++) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return server.output();
+    } finally {
+      await server.stop();
+    }
+  };
+
+  it('displays the request logs by default', async () => {
+    const output = await outputOf([], await freePort());
+    assert.match(output, /method: GET/);
+    assert.match(output, /Endpoint: \/hello/);
+    assert.match(output, /missing\.txt not found/);
+    assert.match(output, /denied endpoint/);
+    assert.match(output, /boom endpoint/);
+  });
+
+  it('displays only the server errors with QUIET', async () => {
+    const output = await outputOf(['QUIET'], await freePort());
+    assert.match(output, /Server running at/);
+    assert.doesNotMatch(output, /method: GET/);
+    assert.doesNotMatch(output, /Endpoint: /);
+    assert.doesNotMatch(output, /not found/);
+    assert.doesNotMatch(output, /denied endpoint/);
+    assert.match(output, /boom endpoint/);
+  });
+
+  it('accepts isQuiet in the configuration file', async () => {
+    const port = await freePort();
+    const other = makeProject({
+      'index.html': 'root index',
+      'dev-web-server.json': JSON.stringify({ domain: '127.0.0.1', port, isQuiet: true }),
+    });
+    const server = await startCli([], { cwd: other, port });
+    try {
+      await request(port, '/');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      assert.doesNotMatch(server.output(), /method: GET/);
+    } finally {
+      await server.stop();
+      removeProject(other);
     }
   });
 });

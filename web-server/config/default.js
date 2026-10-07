@@ -21,6 +21,9 @@ export default {
   // no delay by default.
   delay: 0,
 
+  // request logs by default.
+  isQuiet: false,
+
   // no CORS by default.
   withCORS: false,
 

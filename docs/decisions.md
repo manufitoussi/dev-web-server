@@ -62,7 +62,7 @@ This file records the decisions taken on the project, with their context, so tha
 **Decision.** The port and the delay are converted to numbers and validated, from the command line and from `dev-web-server.json`. A missing parameter value, an invalid value, an invalid `dev-web-server.json`, or a server that cannot start (e.g. the port is already in use) display an error message and exit with the code `1`. The help is displayed before reading the configuration.
 **Consequences.** A mistake is reported at once, instead of a raw stack trace or a server running with an unexpected configuration.
 
-## 2026-10-07 — Logs kept as they are
+## 2026-10-07 — Logs kept as they are (*replaced by "QUIET option"*)
 
 **Context.** Each request logs about 8 lines.
 **Decision.** The logs are kept as they are for now. The unused `isDebug` option is removed: a `DEBUG` option reducing the logs may be added later.
@@ -70,6 +70,11 @@ This file records the decisions taken on the project, with their context, so tha
 ## 2026-10-07 — MIT license and continuous integration
 
 **Decision.** The `LICENSE` file contains the MIT license declared in `package.json`. A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the tests with Node.js 22 and 24 for each push and pull request, with the `pnpm` lockfile. The readme shows the CI status of `develop`.
+
+## 2026-10-07 — QUIET option
+
+**Context.** The detailed request logs are useful by default, but too verbose in some uses.
+**Decision.** The logs stay detailed by default. The `QUIET` option (`isQuiet` in the configuration file) hides the request logs, including the `4xx` error responses. The server errors (`5xx` responses, endpoint exceptions, endpoints file loading), the start errors and the startup lines (version, `Server running at`) are still displayed. The logs go through a small logger (`web-server/tools/logger.js`).
 
 ## Pending — Next version number
 
