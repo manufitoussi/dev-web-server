@@ -123,14 +123,35 @@ var Service = function (config) {
         req.on('end', function () {
           req.body = body;
           console.log('Body: '.bold + req.body);
-          endPoint(req, res, req.body, sendSuccess, sendError);
+          callEndPoint(endPoint, req, res, req.body);
         });
         return;
       }
 
       var reqUrl = url.parse(req.url, true);
-      endPoint(req, res, reqUrl.query, sendSuccess, sendError);
+      callEndPoint(endPoint, req, res, reqUrl.query);
     }, delay);
+  };
+
+  /**
+   * calls an endpoint callback, sending a 500 error instead of crashing
+   * the server if it throws.
+   * @param  {Function} endPoint
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {Object|String} params
+   */
+  var callEndPoint = function (endPoint, req, res, params) {
+    try {
+      endPoint(req, res, params, sendSuccess, sendError);
+    } catch (e) {
+      console.error((e.stack || e.toString()).red);
+      if (res.headersSent) {
+        res.end();
+        return;
+      }
+      sendError(req, res, 500, 'endPoint error: ' + (e.message || e.toString()));
+    }
   };
 
   return {

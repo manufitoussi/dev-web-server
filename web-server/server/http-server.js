@@ -54,8 +54,26 @@ var HttpServer = function (config) {
     }
   };
 
+  var stat = function stat(filePath) {
+    try {
+      return fs.statSync(filePath);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  var isFile = function isFile(filePath) {
+    var stats = stat(filePath);
+    return !!stats && stats.isFile();
+  };
+
+  var isDirectory = function isDirectory(filePath) {
+    var stats = stat(filePath);
+    return !!stats && stats.isDirectory();
+  };
+
   var start = function start() {
-    http.createServer(function (req, res) {
+    var server = http.createServer(function (req, res) {
       console.log('------------------------');
       console.log('time:', (new Date()).toISOString().bold);
       console.log('method: ' + req.method.bold.yellow);
@@ -80,17 +98,35 @@ var HttpServer = function (config) {
           return;
         }
 
+        // decoded path name (e.g. '/my%20file.txt' -> '/my file.txt').
+        var pathname;
+        try {
+          pathname = decodeURIComponent(url.pathname);
+        } catch (e) {
+          html.error(askedUrl + ' is not a valid url.', res, 400);
+          return;
+        }
+
         // full path of the file
-        var filePath = path.resolve(config.baseDir, '.' + url.pathname);
+        var filePath = path.resolve(config.baseDir, '.' + pathname);
         console.log('filePath: ' + filePath.bold);
 
-        if (config.isSPA && !fs.existsSync(filePath)) {
+        // refuses any path outside of the base directory (e.g. '/..%2f..%2fetc/passwd').
+        var baseDir = path.resolve(config.baseDir);
+        if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
+          html.error(askedUrl + ' not found.', res, 404);
+          return;
+        }
+
+        // a directory serves its index file.
+        if (isDirectory(filePath)) {
+          filePath = path.join(filePath, path.basename(config.root));
+        }
+
+        if (config.isSPA && !isFile(filePath)) {
           // if the file does not exist, the server will return the SPA root file.
           filePath = path.resolve(config.baseDir, '.' + config.root);
           console.log('Redirect to SPA root file:', filePath.bold);
-
-          // pass the requested url to the SPA.
-          req.url = askedUrl;
         }
 
         // file name with extension
@@ -109,11 +145,11 @@ var HttpServer = function (config) {
         console.log('content type:', contentType.bold);
 
         // displays the requested file:
-        if (fs.existsSync(filePath)) {
+        if (isFile(filePath)) {
 
           fs.readFile(filePath, function (err, file) {
             if (err) {
-              html.error(err, res);
+              html.error(err.message, res);
               return;
             }
 
@@ -145,6 +181,7 @@ var HttpServer = function (config) {
 
     console.log('Server running at', util.format('http://%s:%s/'.yellow.underline, config.domain, config.port));
     console.log('Type [Ctrl+C] to stop the server.');
+    return server;
   };
   return {
     start: start,
