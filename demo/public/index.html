@@ -35,7 +35,47 @@
       <button type="button" id="rerun">Run again</button>
     </section>
 
+    <p class="hint">Click a check to see its requests and responses, or <span aria-hidden="true">↻</span> to run it again.</p>
+
     <div class="groups" id="groups"></div>
+
+    <section class="group playground" aria-labelledby="playground-title">
+      <h2 id="playground-title">Try a request</h2>
+      <div class="presets" id="presets" aria-label="Examples"></div>
+      <form id="playground">
+        <div class="playground__line">
+          <label class="visually-hidden" for="method">Method</label>
+          <select id="method" name="method">
+            <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option>
+            <option>DELETE</option><option>OPTIONS</option><option>HEAD</option>
+          </select>
+          <label class="visually-hidden" for="url">URL</label>
+          <input id="url" name="url" type="text" spellcheck="false" autocomplete="off">
+          <button type="submit" class="primary">Send</button>
+        </div>
+        <div class="playground__fields">
+          <label>Content type
+            <select name="type">
+              <option value="">none</option>
+              <option>application/json</option>
+              <option>application/x-www-form-urlencoded</option>
+              <option>text/plain</option>
+            </select>
+          </label>
+          <label>Headers <small>(one "Name: value" per line)</small>
+            <textarea name="headers" rows="2" spellcheck="false"></textarea>
+          </label>
+          <label class="playground__body">Body
+            <textarea name="body" rows="5" spellcheck="false"></textarea>
+          </label>
+        </div>
+        <div class="playground__actions">
+          <small>Ctrl+Enter to send</small>
+          <button type="button" id="copy-curl">Copy as curl</button>
+        </div>
+      </form>
+      <div id="playground-response" aria-live="polite"></div>
+    </section>
 
     <section class="group media">
       <h2>Media</h2>

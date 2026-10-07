@@ -90,7 +90,7 @@ This file records the decisions taken on the project, with their context, so tha
 ## 2026-10-07 — Test card demo
 
 **Context.** `npm start` served a minimal page that did not show what the server does.
-**Decision.** `npm start` serves a test card (`demo/public/`, endpoints in `demo/endpoints.js`), like a TV test card: color bars, a clock, and checks run from the browser for each feature, green, red or blue (information on the active options). It is not published on npm. A node test checks that the files and endpoints used by the test card answer; the page itself is checked in a browser during the development, not in the CI, to keep the CI without a browser.
+**Decision.** `npm start` serves a test card (`demo/public/`, endpoints in `demo/endpoints.js`), like a TV test card: color bars, a clock, and checks run from the browser for each feature, green, red or blue (information on the active options). It is interactive: each check shows its requests and responses and can be run again, and a playground sends any request, with examples, and copies it as a `curl` command. It is not published on npm. A node test checks that the files and endpoints used by the test card answer; the page itself is checked in a browser during the development, not in the CI, to keep the CI without a browser.
 **Consequences.** The test script lists the test files explicitly (`tests/*.test.mjs`), as `test-card.js` matches a default test file name pattern of `node --test`.
 
 ## 2026-10-07 — Routes with parameters
