@@ -18,7 +18,7 @@ You can specify :
 - an root url for routing API endpoints.
 - activate SPA mode.
 - activate CORS.
-- activate cache control.
+- allow browser caching (responses are sent with `Cache-Control: no-cache` by default).
 
 ## Default webpage
 
@@ -84,10 +84,10 @@ With this command, the application will create a web server :
 | `BASEDIR`   |  *relative* or *absolute* path to the *website root* (default : *launching directory*) |
 | `DELAY`     |  Time delay in milliseconds before each server response (default : `0` ms) |
 | `ENDPOINTS` |  *relative* or *absolute* path to the file that contains API endpoints *(see definition below)* |
-| `ENDPONTSROOT` |  Root URL for routing API endpoints (default : `/api`) |
+| `ENDPOINTSROOT` |  Root URL for routing API endpoints (default : `/api`) |
 | `SPA`       |  Activate SPA mode (default : `false`) |
 | `CORS`      |  active CORS headers in responses |
-| `CACHE`     |  active cache control headers in responses |
+| `CACHE`     |  allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
 
 ## Examples
 
@@ -118,7 +118,7 @@ The JSON configuration file has to contain the following properties:
 | endPointsRoot | `string` | Root URL for routing API endpoints | `/api` |
 | isSPA | `boolean` | Activate SPA mode | `false` |
 | withCORS | `boolean` | Activate CORS headers in responses | `false` |
-| withCache | `boolean` | Activate cache control headers in responses | `false` |
+| withCache | `boolean` | Allow browser caching (if `false`, responses are sent with a `Cache-Control: no-cache` header) | `false` |
 
 
 example :
