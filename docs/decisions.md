@@ -102,6 +102,7 @@ This file records the decisions taken on the project, with their context, so tha
 **Decision.** The server watches the directory of the endpoints file (some editors replace the file when saving it) and reloads the file when it changes, after 100 ms without change. An ES module is imported again with a new url (`?version=n`), and a CommonJS module is removed from the require cache first. If the new version cannot be loaded, the error is displayed and the previous endpoints are kept. An endpoints file missing at the start is loaded when it is created. There is no option to disable the reload.
 **Consequences.** The state of the endpoints file is reset by a reload, and the modules it imports are not reloaded. Each version of an ES module stays in memory, which is acceptable for a development server. The watcher starts once the server listens, so the application still exits when the server cannot start.
 
-## Pending — Next version number
+## 2026-10-07 — Version 3.0.0
 
-The merged endpoint parameters (the raw body moves from `params` to `req.body`), the Node.js 22 requirement, the stricter parameter validation, and the ES modules migration with the async `start()` are breaking changes: the next release should be `3.0.0`, with [upgrade-3.md](upgrade-3.md) as the base of its release note. The version stays `2.0.0` until the release is decided.
+**Context.** The merged endpoint parameters (the raw body moves from `params` to `req.body`), the Node.js 22 requirement, the stricter parameter validation, and the ES modules migration with the async `start()` are breaking changes.
+**Decision.** The release is `3.0.0`. Its notes are in `CHANGELOG.md`, and the upgrade guide in [upgrade-3.md](upgrade-3.md). The release order is: merge into `master`, tag `v3.0.0`, publish on npm, then create the GitHub release, so the announced version is already installable.

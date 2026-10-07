@@ -1,11 +1,13 @@
 DEV WEB SERVER
 ==============
-[![CI](https://github.com/manufitoussi/dev-web-server/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/manufitoussi/dev-web-server/actions/workflows/ci.yml)
+[![CI](https://github.com/manufitoussi/dev-web-server/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/manufitoussi/dev-web-server/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dev-web-server)](https://www.npmjs.com/package/dev-web-server)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A simple web & API server for your development.
 -----------------------------------------------
+
+> **Version 3.0** requires Node.js 22 and changes the endpoint parameters: see the [changelog](CHANGELOG.md) and the [upgrade guide](docs/upgrade-3.md).
 
 # Definition
 This project is a [NodeJS] application that creates a local web server simply and quickly. It serves static files and dynamic data: it is useful to mock an API or to serve your website project.
