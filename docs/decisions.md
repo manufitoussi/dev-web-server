@@ -87,6 +87,12 @@ This file records the decisions taken on the project, with their context, so tha
 **Decision.** As the next release is a major version, `params` becomes one object for every verb: the query string parameters, then the body fields, then the route parameters, the last ones winning. The body is parsed according to its content type: JSON (`application/json` or `*+json`), url encoded form, or raw string otherwise. Each source stays available separately: `req.query`, `req.body`, `req.params`. An invalid JSON body gives a `400` error. A JSON body that is not an object (an array for example) is not merged: it is only in `req.body`.
 **Consequences.** The `GET` endpoints keep working. The endpoints reading the raw body from `params` have to use `req.body` (see [upgrade-3.md](upgrade-3.md)).
 
+## 2026-10-07 — Test card demo
+
+**Context.** `npm start` served a minimal page that did not show what the server does.
+**Decision.** `npm start` serves a test card (`demo/public/`, endpoints in `demo/endpoints.js`), like a TV test card: color bars, a clock, and checks run from the browser for each feature, green, red or blue (information on the active options). It is not published on npm. A node test checks that the files and endpoints used by the test card answer; the page itself is checked in a browser during the development, not in the CI, to keep the CI without a browser.
+**Consequences.** The test script lists the test files explicitly (`tests/*.test.mjs`), as `test-card.js` matches a default test file name pattern of `node --test`.
+
 ## Pending — Next version number
 
 The ES modules migration and the async `start()` are breaking changes for the code using the internal modules: the next release should be `3.0.0`. The version stays `2.0.0` until the release is decided.
