@@ -204,7 +204,7 @@ describe('endpoints options', () => {
     }
   });
 
-  it.todo('loads an ES module endpoints file (export default)', async () => {
+  it('loads an ES module endpoints file (export default)', async () => {
     const esm = makeProject({
       'endpoints.mjs': `export default {
         '/hello': (req, res, params, sendSuccess) => sendSuccess(req, res, { hello: params.name }),

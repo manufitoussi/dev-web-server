@@ -11,13 +11,15 @@
  *  TODO: complete arguments.
  */
 
-require('colors');
-const VERSION = require('../package').version;
-const HttpServer = require('./server/http-server.js');
-const defaultConfig = require('./config/default');
-const configFromDefault = require('./config/from-default');
-const configFromCLI = require('./config/from-cli');
-const configFromFile = require('./config/from-file');
+import 'colors';
+import fs from 'node:fs';
+import HttpServer from './server/http-server.js';
+import defaultConfig from './config/default.js';
+import configFromDefault from './config/from-default.js';
+import configFromCLI from './config/from-cli.js';
+import configFromFile from './config/from-file.js';
+
+const VERSION = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url))).version;
 const config = configFromCLI(configFromFile(configFromDefault(defaultConfig)), process.argv);
 
 console.log(' DEV WEB SERVER '.bold.bgBrightGreen, ' v' + VERSION);
@@ -46,4 +48,4 @@ if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
 
 // start the web server.
 var httpServer = new HttpServer(config);
-httpServer.start();
+await httpServer.start();

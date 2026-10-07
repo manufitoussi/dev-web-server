@@ -1,7 +1,7 @@
-var ContentTypes = require('./content-types.js');
-var DELAY = 0;
+import ContentTypes from './content-types.js';
+import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
 
-const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
+var DELAY = 0;
 
 /**
  * Service class.
@@ -177,4 +177,4 @@ var Service = function (config) {
   };
 };
 
-module.exports = Service;
+export default Service;

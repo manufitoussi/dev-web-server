@@ -140,6 +140,8 @@ example :
 
 The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` hash object. Each one of its properties is endpoint declaration: the key is the URL part string before the endpoints root url (default: `/api`) and the value is a `function` to execute.
 
+The file can be an ES module (`export default { ... }`) or a CommonJS module (`module.exports = { ... }`). Its format is chosen by [NodeJS] as usual: the `.mjs` and `.cjs` extensions, or the `type` field of the nearest `package.json` for a `.js` file.
+
 ### Endpoint function
 
 The endpoint function permits to define the response. It takes in arguments:
@@ -185,7 +187,7 @@ var Repository = {
   count:0
 };
 
-module.exports = {
+export default {
   '/example': function (req, res, params, sendSuccess, sendError) {
 
     // Response result is: '{"test":"coucou","count":1}'.
@@ -217,6 +219,16 @@ module.exports = {
   }
 };
 
+```
+
+The same file as a CommonJS module:
+
+```js
+module.exports = {
+  '/example': function (req, res, params, sendSuccess, sendError) {
+    sendSuccess(req, res, { test: 'coucou' });
+  },
+};
 ```
 
 ## Stop server

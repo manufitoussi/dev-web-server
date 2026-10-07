@@ -10,6 +10,7 @@
     "test": "node --test"
   },
   "version": "2.0.0",
+  "type": "module",
   "main": "./web-server/app.js",
   "bin": {
     "dev-web-server": "web-server/app.js"

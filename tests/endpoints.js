@@ -2,7 +2,7 @@ var Repository = {
   count:0
 };
 
-module.exports = {
+export default {
   '/example': function (req, res, params, sendSuccess, sendError) {
     
     // Response result is: '{"test":"coucou","count":1, 2, 3, ...}'.

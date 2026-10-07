@@ -1,8 +1,8 @@
-const mimes = require('mime-types');
+import mimes from 'mime-types';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
-module.exports = {
+export default {
   lookup: ext => mimes.lookup(ext) || DEFAULT_CONTENT_TYPE,
 
   charset: ext => mimes.charset(ext)
