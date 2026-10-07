@@ -67,6 +67,10 @@ This file records the decisions taken on the project, with their context, so tha
 **Context.** Each request logs about 8 lines.
 **Decision.** The logs are kept as they are for now. The unused `isDebug` option is removed: a `DEBUG` option reducing the logs may be added later.
 
+## 2026-10-07 — MIT license and continuous integration
+
+**Decision.** The `LICENSE` file contains the MIT license declared in `package.json`. A GitHub Actions workflow (`.github/workflows/ci.yml`) runs the tests with Node.js 22 and 24 for each push and pull request, with the `pnpm` lockfile. The readme shows the CI status of `develop`.
+
 ## Pending — Next version number
 
 The ES modules migration and the async `start()` are breaking changes for the code using the internal modules: the next release should be `3.0.0`. The version stays `2.0.0` until the release is decided.
