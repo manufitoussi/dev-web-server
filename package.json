@@ -1,28 +1,35 @@
 {
-  "author": "Emmanuel Fitoussi",
   "name": "dev-web-server",
-  "description": "A simple web & API server for your development.",
+  "version": "3.0.0",
+  "description": "A simple web & API server for your development: static files, mocked API endpoints, SPA, CORS.",
+  "author": "Emmanuel Fitoussi",
+  "license": "MIT",
+  "homepage": "https://github.com/manufitoussi/dev-web-server#readme",
   "repository": {
+    "type": "git",
     "url": "git+https://github.com/manufitoussi/dev-web-server.git"
   },
+  "bugs": {
+    "url": "https://github.com/manufitoussi/dev-web-server/issues"
+  },
+  "type": "module",
+  "main": "./web-server/app.js",
+  "bin": {
+    "dev-web-server": "web-server/app.js"
+  },
+  "files": [
+    "web-server",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "start": "node ./web-server/app.js BASEDIR ./demo/public ENDPOINTS ./demo/endpoints.js",
     "test": "node --test \"tests/*.test.mjs\""
   },
-  "version": "2.0.0",
-  "type": "module",
-  "main": "./web-server/app.js",
-  "files": [
-    "web-server"
-  ],
-  "bin": {
-    "dev-web-server": "web-server/app.js"
+  "engines": {
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "mime-types": "^2.1.35"
-  },
-  "engines": {
-    "node": ">=22.0.0"
   },
   "keywords": [
     "server",
@@ -38,7 +45,10 @@
     "SPA",
     "CORS",
     "routing",
-    "lightweight"
-  ],
-  "license": "MIT"
+    "lightweight",
+    "mock-server",
+    "api-mock",
+    "dev-server",
+    "static-server"
+  ]
 }
