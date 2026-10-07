@@ -270,6 +270,20 @@ To stop the server, type `Ctrl+C`.
 
 # Development
 
+## Test card
+
+Run the demo with:
+
+```bash
+npm start
+```
+
+It serves a test card at `http://localhost:8080/`: the page checks live, from the browser, the features of the server (static files, content types, ranges, endpoints, parameters, errors, JSONP) and shows the active options. Its files are in `demo/public/`, and its endpoints in `demo/endpoints.js`. You can add the usual parameters, e.g. `npm start -- CORS DELAY 500`.
+
+![Test card](docs/test-card.png)
+
+## Tests
+
 Run the unit tests:
 
 ```bash

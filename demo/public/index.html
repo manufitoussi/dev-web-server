@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test Card — dev-web-server</title>
+  <link rel="stylesheet" href="test-card.css">
+  <script type="module" src="test-card.js"></script>
+</head>
+<body>
+  <header class="bars" aria-hidden="true">
+    <div class="bars__main">
+      <span style="--bar: #c0c0c0"></span><span style="--bar: #c0c000"></span><span style="--bar: #00c0c0"></span>
+      <span style="--bar: #00c000"></span><span style="--bar: #c000c0"></span><span style="--bar: #c00000"></span>
+      <span style="--bar: #0000c0"></span>
+    </div>
+    <div class="bars__reverse">
+      <span style="--bar: #0000c0"></span><span style="--bar: #131313"></span><span style="--bar: #c000c0"></span>
+      <span style="--bar: #131313"></span><span style="--bar: #00c0c0"></span><span style="--bar: #131313"></span>
+      <span style="--bar: #c0c0c0"></span>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-label="Server">
+      <div class="card__circle">
+        <p class="card__name">DEV WEB SERVER</p>
+        <p class="card__clock" id="clock">--:--:--</p>
+        <p class="card__info" id="server-info">connecting…</p>
+      </div>
+    </section>
+
+    <section class="summary" aria-live="polite">
+      <p id="summary">Running the checks…</p>
+      <button type="button" id="rerun">Run again</button>
+    </section>
+
+    <div class="groups" id="groups"></div>
+
+    <section class="group media">
+      <h2>Media</h2>
+      <p class="hint">A 1&nbsp;kHz test tone, streamed with <code>Range</code> requests: play it and seek anywhere.</p>
+      <audio controls preload="metadata" src="tone.wav"></audio>
+    </section>
+  </main>
+
+  <footer>
+    <p>Served by <a href="https://www.npmjs.com/package/dev-web-server">dev-web-server</a>. The endpoints of this page are in <code>demo/endpoints.js</code>.</p>
+  </footer>
+</body>
+</html>
