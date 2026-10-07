@@ -254,6 +254,10 @@ Run the unit tests:
 npm test
 ```
 
+The tests run the real command line application and query it over HTTP (see `tests/`).
+
+The decisions taken on the project are recorded in [docs/decisions.md](docs/decisions.md).
+
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/
 [mime-types]: https://www.npmjs.com/package/mime-types
