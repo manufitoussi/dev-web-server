@@ -1,5 +1,4 @@
 var ContentTypes = require('./content-types.js');
-var url = require('url');
 var DELAY = 0;
 
 const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
@@ -123,14 +122,51 @@ var Service = function (config) {
         req.on('end', function () {
           req.body = body;
           console.log('Body: '.bold + req.body);
-          endPoint(req, res, req.body, sendSuccess, sendError);
+          callEndPoint(endPoint, req, res, req.body);
         });
         return;
       }
 
-      var reqUrl = url.parse(req.url, true);
-      endPoint(req, res, reqUrl.query, sendSuccess, sendError);
+      callEndPoint(endPoint, req, res, parseQuery(req.url));
     }, delay);
+  };
+
+  /**
+   * parses the query string of an url. A repeated key gives an array of values.
+   * @param  {String} reqUrl
+   * @return {Object}
+   */
+  var parseQuery = function (reqUrl) {
+    var query = {};
+    new URL(reqUrl, 'http://localhost').searchParams.forEach(function (value, key) {
+      if (!Object.prototype.hasOwnProperty.call(query, key)) {
+        query[key] = value;
+      } else {
+        query[key] = [].concat(query[key], value);
+      }
+    });
+    return query;
+  };
+
+  /**
+   * calls an endpoint callback, sending a 500 error instead of crashing
+   * the server if it throws.
+   * @param  {Function} endPoint
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {Object|String} params
+   */
+  var callEndPoint = function (endPoint, req, res, params) {
+    try {
+      endPoint(req, res, params, sendSuccess, sendError);
+    } catch (e) {
+      console.error((e.stack || e.toString()).red);
+      if (res.headersSent) {
+        res.end();
+        return;
+      }
+      sendError(req, res, 500, 'endPoint error: ' + (e.message || e.toString()));
+    }
   };
 
   return {

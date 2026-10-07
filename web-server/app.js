@@ -34,7 +34,7 @@ if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
   console.log('  SPA'.bold.blue, ': single page application mode.');
   console.log('  DELAY'.bold.blue,'<x>'.italic.blue, ': delay in ms before response (default: 0).');
   console.log('  CORS'.bold.blue, ': add CORS headers.');
-  console.log('  CACHE'.bold.blue, ': add cache control headers.');
+  console.log('  CACHE'.bold.blue, ': allow browser caching (default: responses are sent with a "Cache-Control: no-cache" header).');
   console.log('  HELP'.bold.blue, ': this help message.');
 
   console.log() // empty line.

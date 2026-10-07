@@ -6,7 +6,8 @@
     "url": "git+https://github.com/manufitoussi/dev-web-server.git"
   },
   "scripts": {
-    "start": "node ./web-server/app.js ENDPOINTS ./tests/endpoints.js BASEDIR ./tests/httpdocs"
+    "start": "node ./web-server/app.js ENDPOINTS ./tests/endpoints.js BASEDIR ./tests/httpdocs",
+    "test": "node --test"
   },
   "version": "2.0.0",
   "main": "./web-server/app.js",
@@ -14,11 +15,11 @@
     "dev-web-server": "web-server/app.js"
   },
   "dependencies": {
-    "colors": ">=1.4.0",
+    "colors": "1.4.0",
     "mime-types": "^2.1.35"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   },
   "keywords": [
     "server",
