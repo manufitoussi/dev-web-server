@@ -29,7 +29,7 @@ const Service = function (config) {
    * all the endPoint callbacks.
    * @type {Object}
    */
-  const endPoints = config.endPoints || {};
+  let endPoints = config.endPoints || {};
 
   /**
    * logger of the server.
@@ -288,8 +288,17 @@ const Service = function (config) {
     }
   };
 
+  /**
+   * replaces the endpoints (e.g. when the endpoints file is reloaded).
+   * @param {Object} newEndPoints
+   */
+  const setEndPoints = function (newEndPoints) {
+    endPoints = newEndPoints;
+  };
+
   return {
-    runEndPoint: runEndPoint
+    runEndPoint: runEndPoint,
+    setEndPoints: setEndPoints
   };
 };
 

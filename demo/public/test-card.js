@@ -193,6 +193,11 @@ const GROUPS = [
         const value = (await t.send(`${API}/info`)).res.headers.get('access-control-allow-origin');
         return info(value ? `Access-Control-Allow-Origin: ${value}` : 'no CORS headers (CORS is not active)');
       }],
+      ['Endpoints file reload', async t => {
+        const body = (await t.send(`${API}/info`)).json();
+        const time = new Date(body.loadedAt).toLocaleTimeString([], { hour12: false });
+        return info(`demo/endpoints.js loaded at ${time}: edit it, then run this check again`);
+      }],
       ['Delay (DELAY)', async t => {
         const r = await t.send(`${API}/info`);
         return info(`an endpoint answers in ${r.ms} ms`);

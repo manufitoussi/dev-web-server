@@ -161,6 +161,8 @@ The API endpoints can be defined in a [NodeJS] script file. It has to export a `
 
 A key can be a route with parameters, starting with `:`: the key `/users/:id` matches `/users/42`, and the endpoint gets `req.params.id` = `'42'` (decoded). An endpoint with the exact key wins over the routes (`/users/me` over `/users/:id`), and if several routes match, the one with the most static segments wins (`/users/:id/posts` over `/:kind/:id/posts`), then the first declared.
 
+The endpoints file is watched: when it changes, the server reloads it without restarting. If the new version cannot be loaded (e.g. a syntax error), the error is displayed and the previous endpoints are kept. The state of the file (its variables) is reset by a reload, and the modules imported by the endpoints file are not reloaded.
+
 The file can be an ES module (`export default { ... }`) or a CommonJS module (`module.exports = { ... }`). Its format is chosen by [NodeJS] as usual: the `.mjs` and `.cjs` extensions, or the `type` field of the nearest `package.json` for a `.js` file.
 
 ### Endpoint function

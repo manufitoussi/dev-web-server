@@ -1,7 +1,8 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
+import fs from 'node:fs';
 import path from 'node:path';
-import { freePort, makeProject, removeProject, request, startCli } from './helpers.mjs';
+import { freePort, makeProject, removeProject, request, runCli, startCli } from './helpers.mjs';
 
 // a CommonJS endpoints file, as written by the users today.
 const ENDPOINTS = `
@@ -348,6 +349,106 @@ describe('endpoints options', () => {
     } finally {
       await server.stop();
       removeProject(esm);
+    }
+  });
+});
+
+describe('endpoints file reload', () => {
+  // waits until check() returns true.
+  const waitFor = async (check, message) => {
+    for (let i = 0; i < 100; i++) {
+      if (await check()) {
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail('timeout: ' + message);
+  };
+
+  const versionOf = async port => {
+    const res = await request(port, '/api/version');
+    return res.status === 200 ? JSON.parse(res.body).version : res.status;
+  };
+
+  const cjs = (version, extra = '') => `module.exports = {
+    '/version': (req, res, params, sendSuccess) => sendSuccess(req, res, { version: ${version} }),
+    ${extra}
+  };`;
+
+  it('reloads a CommonJS endpoints file when it changes', async () => {
+    const project = makeProject({ 'endpoints.js': cjs(1, `'/old': (req, res, params, sendSuccess) => sendSuccess(req, res, 'old'),`) });
+    const server = await start(['ENDPOINTS', 'endpoints.js'], { cwd: project });
+    try {
+      assert.strictEqual(await versionOf(server.port), 1);
+      fs.writeFileSync(path.join(project, 'endpoints.js'), cjs(2, `'/new': (req, res, params, sendSuccess) => sendSuccess(req, res, 'new'),`));
+      await waitFor(async () => await versionOf(server.port) === 2, 'version 2');
+
+      assert.strictEqual((await request(server.port, '/api/old')).status, 404);
+      assert.strictEqual((await request(server.port, '/api/new')).body, '"new"');
+      await waitFor(() => /Endpoints file reloaded/.test(server.output()), 'reload log');
+    } finally {
+      await server.stop();
+      removeProject(project);
+    }
+  });
+
+  it('reloads an ES module endpoints file when it changes', async () => {
+    const esm = version => `export default {
+      '/version': (req, res, params, sendSuccess) => sendSuccess(req, res, { version: ${version} }),
+    };`;
+    const project = makeProject({ 'endpoints.mjs': esm(1) });
+    const server = await start(['ENDPOINTS', 'endpoints.mjs'], { cwd: project });
+    try {
+      assert.strictEqual(await versionOf(server.port), 1);
+      for (const version of [2, 3]) {
+        fs.writeFileSync(path.join(project, 'endpoints.mjs'), esm(version));
+        await waitFor(async () => await versionOf(server.port) === version, `version ${version}`);
+      }
+    } finally {
+      await server.stop();
+      removeProject(project);
+    }
+  });
+
+  it('keeps the previous endpoints when the new file is invalid', async () => {
+    const project = makeProject({ 'endpoints.js': cjs(1) });
+    const server = await start(['ENDPOINTS', 'endpoints.js'], { cwd: project });
+    try {
+      fs.writeFileSync(path.join(project, 'endpoints.js'), 'module.exports = { broken');
+      await waitFor(() => /the endpoints file is not reloaded/.test(server.output()), 'error log');
+      assert.strictEqual(await versionOf(server.port), 1);
+
+      fs.writeFileSync(path.join(project, 'endpoints.js'), cjs(2));
+      await waitFor(async () => await versionOf(server.port) === 2, 'version 2 after the fix');
+    } finally {
+      await server.stop();
+      removeProject(project);
+    }
+  });
+
+  it('loads an endpoints file created after the start', async () => {
+    const project = makeProject({ 'index.html': 'root index' });
+    const server = await start(['ENDPOINTS', 'endpoints.js'], { cwd: project });
+    try {
+      assert.strictEqual(await versionOf(server.port), 404);
+      fs.writeFileSync(path.join(project, 'endpoints.js'), cjs(1));
+      await waitFor(async () => await versionOf(server.port) === 1, 'version 1');
+    } finally {
+      await server.stop();
+      removeProject(project);
+    }
+  });
+
+  it('exits when the port is already in use, even with an endpoints file', async () => {
+    const project = makeProject({ 'endpoints.js': cjs(1) });
+    const server = await start(['ENDPOINTS', 'endpoints.js'], { cwd: project });
+    try {
+      const { code, output } = await runCli(['DOMAIN', '127.0.0.1', 'PORT', String(server.port), 'ENDPOINTS', 'endpoints.js'], { cwd: project });
+      assert.strictEqual(code, 1);
+      assert.match(output, /already in use/);
+    } finally {
+      await server.stop();
+      removeProject(project);
     }
   });
 });

@@ -97,6 +97,11 @@ This file records the decisions taken on the project, with their context, so tha
 
 **Decision.** An endpoint key can contain parameters (`/users/:id`). The exact keys are matched first, then the routes with the same number of segments: the route with the most static segments wins, then the first declared, so the result does not depend on the declaration order in the usual cases. A parameter matches one non-empty segment, decoded. The route parameters are in `req.params` and override the query string and body fields in `params`.
 
+## 2026-10-07 — Endpoints file reload
+
+**Decision.** The server watches the directory of the endpoints file (some editors replace the file when saving it) and reloads the file when it changes, after 100 ms without change. An ES module is imported again with a new url (`?version=n`), and a CommonJS module is removed from the require cache first. If the new version cannot be loaded, the error is displayed and the previous endpoints are kept. An endpoints file missing at the start is loaded when it is created. There is no option to disable the reload.
+**Consequences.** The state of the endpoints file is reset by a reload, and the modules it imports are not reloaded. Each version of an ES module stays in memory, which is acceptable for a development server. The watcher starts once the server listens, so the application still exits when the server cannot start.
+
 ## Pending — Next version number
 
 The ES modules migration and the async `start()` are breaking changes for the code using the internal modules: the next release should be `3.0.0`. The version stays `2.0.0` until the release is decided.

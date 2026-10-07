@@ -67,15 +67,23 @@ const canConnect = (port, host) => new Promise(resolve => {
 });
 
 /**
- * runs the CLI with the given arguments until it exits.
+ * runs the CLI with the given arguments until it exits. After the timeout,
+ * the process is killed and the code is null, so a test fails instead of hanging.
  */
-export const runCli = (args, { cwd } = {}) => new Promise((resolve, reject) => {
+export const runCli = (args, { cwd, timeout = 10000 } = {}) => new Promise((resolve, reject) => {
   const child = spawn(process.execPath, [APP, ...args], { cwd, env: { ...process.env, FORCE_COLOR: '0' } });
   let output = '';
+  const timer = setTimeout(() => {
+    output += `\n[the process did not exit after ${timeout} ms]`;
+    child.kill();
+  }, timeout);
   child.stdout.on('data', data => output += data);
   child.stderr.on('data', data => output += data);
   child.on('error', reject);
-  child.on('exit', code => resolve({ code, output }));
+  child.on('exit', (code, signal) => {
+    clearTimeout(timer);
+    resolve({ code: signal ? null : code, output });
+  });
 });
 
 /**
