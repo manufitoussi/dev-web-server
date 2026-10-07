@@ -15,7 +15,7 @@ import { applyCommonHeaders } from './headers.js';
  * @param {object} config
  * @returns {HttpServer}
  */
-var HttpServer = function (config) {
+const HttpServer = function (config) {
   config = config || merge(DEFAULT);
   let service;
 
@@ -24,7 +24,7 @@ var HttpServer = function (config) {
    * or an ES module (export default).
    * @returns {Promise<Object>}
    */
-  var loadEndPoints = async function loadEndPoints() {
+  const loadEndPoints = async function loadEndPoints() {
     if (!config.endPointsFilePath) {
       return {};
     }
@@ -44,17 +44,17 @@ var HttpServer = function (config) {
    * @param {string} text
    * @returns {string}
    */
-  var escapeHtml = function escapeHtml(text) {
+  const escapeHtml = function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function (char) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
     });
   };
 
-  var html = {
+  const html = {
     error: function error(errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error(style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
-      var htmlError = '<div style="color: red;">' + escapeHtml(errMsg) + '</div>';
+      const htmlError = '<div style="color: red;">' + escapeHtml(errMsg) + '</div>';
       applyCommonHeaders(res, config);
 
       res.writeHead(opt_code, {
@@ -65,7 +65,7 @@ var HttpServer = function (config) {
     }
   };
 
-  var stat = function stat(filePath) {
+  const stat = function stat(filePath) {
     try {
       return fs.statSync(filePath);
     } catch (e) {
@@ -73,13 +73,13 @@ var HttpServer = function (config) {
     }
   };
 
-  var isFile = function isFile(filePath) {
-    var stats = stat(filePath);
+  const isFile = function isFile(filePath) {
+    const stats = stat(filePath);
     return !!stats && stats.isFile();
   };
 
-  var isDirectory = function isDirectory(filePath) {
-    var stats = stat(filePath);
+  const isDirectory = function isDirectory(filePath) {
+    const stats = stat(filePath);
     return !!stats && stats.isDirectory();
   };
 
@@ -87,22 +87,22 @@ var HttpServer = function (config) {
    * starts the server.
    * @returns {Promise<http.Server>} resolved when the server listens.
    */
-  var start = async function start() {
+  const start = async function start() {
     service = createActions({
-      delay: config.delay || DEFAULT.delay,
+      delay: config.delay,
       endPoints: await loadEndPoints(),
       withCORS: config.withCORS,
       withCache: config.withCache,
     });
 
-    var server = http.createServer(function (req, res) {
+    const server = http.createServer(function (req, res) {
       console.log('------------------------');
       console.log('time:', style('bold', (new Date()).toISOString()));
       console.log('method: ' + style(['bold', 'yellow'], req.method));
       console.log('url: ' + style(['bold', 'green'], req.url));
 
-      var render = function render(askedUrl) {
-        var url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
+      const render = function render(askedUrl) {
+        const url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
 
         if (url.search) {
           console.log('search: ' + url.search);
@@ -131,7 +131,7 @@ var HttpServer = function (config) {
         }
 
         // decoded path name (e.g. '/my%20file.txt' -> '/my file.txt').
-        var pathname;
+        let pathname;
         try {
           pathname = decodeURIComponent(url.pathname);
         } catch (e) {
@@ -140,11 +140,11 @@ var HttpServer = function (config) {
         }
 
         // full path of the file
-        var filePath = path.resolve(config.baseDir, '.' + pathname);
+        let filePath = path.resolve(config.baseDir, '.' + pathname);
         console.log('filePath: ' + style('bold', filePath));
 
         // refuses any path outside of the base directory (e.g. '/..%2f..%2fetc/passwd').
-        var baseDir = path.resolve(config.baseDir);
+        const baseDir = path.resolve(config.baseDir);
         if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
           html.error(askedUrl + ' not found.', res, 404);
           return;
@@ -162,15 +162,15 @@ var HttpServer = function (config) {
         }
 
         // file name with extension
-        var baseFile = path.basename(filePath);
+        const baseFile = path.basename(filePath);
         console.log('base: ' + style('bold', baseFile));
 
         // file extension
-        var fileExt = path.extname(filePath);
+        const fileExt = path.extname(filePath);
         console.log('ext: ' + style('bold', fileExt));
 
         // the full path of directory that contains the file.
-        var dirFile = path.dirname(filePath);
+        const dirFile = path.dirname(filePath);
         console.log('dir: ' + style('bold', dirFile));
 
         const contentType = ContentTypes.lookup(fileExt);
@@ -191,7 +191,7 @@ var HttpServer = function (config) {
                 "Content-Type": contentType,
               });
               res.end(file, 'utf-8');
-            }, config.delay || DEFAULT.delay);
+            }, config.delay);
           });
           return;
         }

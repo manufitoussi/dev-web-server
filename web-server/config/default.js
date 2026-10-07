@@ -9,9 +9,6 @@ export default {
 
   root: '/index.html',
 
-  // no debug.
-  isDebug: false,
-
   // no endpoint by default.
   endPointsFilePath: null,
 
