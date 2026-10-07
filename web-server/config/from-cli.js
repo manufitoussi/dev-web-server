@@ -1,64 +1,68 @@
-const path = require('path');
+import path from 'node:path';
 
-module.exports = function (config, argv) {
+const resolvePath = value => path.resolve(process.cwd(), value);
+const keepValue = value => value;
 
-  // apply BASEDIR argument if present in the command line.
-  var baseDirIndex = argv.indexOf('BASEDIR');
-  if (baseDirIndex !== -1 && (baseDirIndex + 1) < argv.length) {
-    var baseDir = argv[baseDirIndex + 1];
-    config.baseDir = path.resolve(process.cwd(), baseDir);
+/**
+ * parameters followed by a value: config property -> [parameter name, value parser].
+ */
+const VALUE_PARAMETERS = {
+  baseDir: ['BASEDIR', resolvePath],
+  port: ['PORT', keepValue],
+  domain: ['DOMAIN', keepValue],
+  delay: ['DELAY', keepValue],
+  endPointsFilePath: ['ENDPOINTS', resolvePath],
+  endPointsRoot: ['ENDPOINTSROOT', keepValue],
+};
+
+/**
+ * parameters without value: config property -> parameter name.
+ */
+const FLAG_PARAMETERS = {
+  withCORS: 'CORS',
+  withCache: 'CACHE',
+  isSPA: 'SPA',
+  isQuiet: 'QUIET',
+};
+
+/**
+ * returns the value following a parameter in the command line arguments.
+ * @param {string[]} argv
+ * @param {string} name
+ * @returns {string|undefined} undefined if the parameter is absent.
+ */
+const getArg = (argv, name) => {
+  const index = argv.indexOf(name);
+  if (index === -1) {
+    return undefined;
   }
 
-  // apply PORT argument if present in the command line.
-  var portIndex = argv.indexOf('PORT');
-  if (portIndex !== -1 && (portIndex + 1) < argv.length) {
-    var port = argv[portIndex + 1];
-    config.port = port;
+  if (index + 1 >= argv.length) {
+    throw new Error(`the ${name} parameter needs a value.`);
   }
 
-  // apply DOMAIN argument if present in the command line.
-  var domainIndex = argv.indexOf('DOMAIN');
-  if (domainIndex !== -1 && (domainIndex + 1) < argv.length) {
-    var domain = argv[domainIndex + 1];
-    config.domain = domain;
+  return argv[index + 1];
+};
+
+/**
+ * applies the command line arguments to the configuration.
+ * @param {object} config
+ * @param {string[]} argv
+ * @returns {object}
+ */
+export default function configFromCLI(config, argv) {
+  for (const [property, [name, parse]] of Object.entries(VALUE_PARAMETERS)) {
+    const value = getArg(argv, name);
+    if (value !== undefined) {
+      config[property] = parse(value);
+    }
   }
 
-  // apply DELAY argument if present in the command line.
-  var delayIndex = argv.indexOf('DELAY');
-  if (delayIndex !== -1 && (delayIndex + 1) < argv.length) {
-    var delay = argv[delayIndex + 1];
-    config.delay = delay;
-  }
-
-  // apply WITHCORS argument if present in the command line.
-  if (argv.indexOf('CORS') !== -1) {
-    config.withCORS = true;
-  }
-
-  // apply WITHCACHE argument if present in the command line.
-  if (argv.indexOf('CACHE') !== -1) {
-    config.withCache = true;
-  }
-
-  // apply ENDPOINTS argument if present in the command line.
-  var endPointsFilePathIndex = argv.indexOf('ENDPOINTS');
-  if (endPointsFilePathIndex !== -1 &&
-    (endPointsFilePathIndex + 1) < argv.length) {
-    var endPointsFilePath = argv[endPointsFilePathIndex + 1];
-    config.endPointsFilePath = path.resolve(process.cwd(), endPointsFilePath);
-  }
-
-  // apply ENDPOINTSROOT argument if present in the command line.
-  var endPointsRootIndex = argv.indexOf('ENDPOINTSROOT');
-  if (endPointsRootIndex !== -1 && (endPointsRootIndex + 1) < argv.length) {
-    var endPointsRoot = argv[endPointsRootIndex + 1];
-    config.endPointsRoot = endPointsRoot;
-  }
-
-  // apply SPA argument if present in the command line.
-  if (argv.indexOf('SPA') !== -1) {
-    config.isSPA = true;
+  for (const [property, name] of Object.entries(FLAG_PARAMETERS)) {
+    if (argv.includes(name)) {
+      config[property] = true;
+    }
   }
 
   return config;
-};
+}

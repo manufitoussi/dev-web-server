@@ -1,8 +1,13 @@
-var ContentTypes = require('./content-types.js');
-var url = require('url');
-var DELAY = 0;
+import ContentTypes from './content-types.js';
+import { applyCommonHeaders } from './headers.js';
+import style from '../tools/style.js';
+import createLogger from '../tools/logger.js';
 
-const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
+/**
+ * a valid JSONP callback name: a JavaScript identifier, or a dotted path
+ * of identifiers (e.g. 'myCallback' or 'app.callbacks.done').
+ */
+const JSONP_CALLBACK = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/;
 
 /**
  * Service class.
@@ -11,20 +16,25 @@ const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
  *          configuration
  * @returns {Service}
  */
-var Service = function (config) {
+const Service = function (config) {
   config = config || {};
 
   /**
    * Delay before running process in ms.
    * @type {int}
    */
-  var delay = config.delay === undefined ? DELAY : config.delay;
+  const delay = config.delay || 0;
 
   /**
    * all the endPoint callbacks.
    * @type {Object}
    */
-  var endPoints = config.endPoints || {};
+  let endPoints = config.endPoints || {};
+
+  /**
+   * logger of the server.
+   */
+  const logger = config.logger || createLogger(false);
 
   /**
    * sends an error json result object to client.
@@ -35,9 +45,14 @@ var Service = function (config) {
    * @param  {Object} result
    * @param  {String} [jsonpCallback]
    */
-  var sendError = function (req, res, httpCode, message, result, jsonpCallback) {
-    console.error('[ERROR]'.red, httpCode.toString().bold.red, message.red);
-    var isJSONP = jsonpCallback !== undefined;
+  const sendError = function (req, res, httpCode, message, result, jsonpCallback) {
+    if (jsonpCallback !== undefined && !JSONP_CALLBACK.test(jsonpCallback)) {
+      sendError(req, res, 400, 'invalid JSONP callback name');
+      return;
+    }
+
+    logger.requestError(httpCode, style('red', '[ERROR]'), style(['bold', 'red'], httpCode), style('red', message));
+    const isJSONP = jsonpCallback !== undefined;
     if (!result) {
       result = {};
     }
@@ -47,13 +62,7 @@ var Service = function (config) {
       message: message
     };
 
-    if (config.withCORS) {
-      addCorsHeaders(res);
-    }
-
-    if (!config.withCache) {
-      addCashControlHeader(res, 'no-cache');
-    }
+    applyCommonHeaders(res, config);
 
     if (!isJSONP) {
       res.writeHead(httpCode, {
@@ -61,7 +70,9 @@ var Service = function (config) {
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(httpCode);
+      res.writeHead(httpCode, {
+        "Content-Type": ContentTypes.lookup('.js')
+      });
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
@@ -73,24 +84,24 @@ var Service = function (config) {
    * @param  {Object} result
    * @param  {String} [jsonpCallback]
    */
-  var sendSuccess = function (req, res, result, jsonpCallback) {
-
-    if (config.withCORS) {
-      addCorsHeaders(res);
+  const sendSuccess = function (req, res, result, jsonpCallback) {
+    if (jsonpCallback !== undefined && !JSONP_CALLBACK.test(jsonpCallback)) {
+      sendError(req, res, 400, 'invalid JSONP callback name');
+      return;
     }
 
-    if (!config.withCache) {
-      addCashControlHeader(res, 'no-cache');
-    }
+    applyCommonHeaders(res, config);
 
-    var isJSONP = jsonpCallback !== undefined;
+    const isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {
       res.writeHead(200, {
         "Content-Type": ContentTypes.lookup('.json')
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(200);
+      res.writeHead(200, {
+        "Content-Type": ContentTypes.lookup('.js')
+      });
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
@@ -101,44 +112,194 @@ var Service = function (config) {
    * @param  {Response} res
    * @param  {String} endPointName
    */
-  var runEndPoint = function (req, res, endPointName) {
-    console.log('Endpoint: '.cyan + endPointName.cyan);
+  const runEndPoint = function (req, res, endPointName) {
+    logger.request(style('cyan', 'Endpoint: ' + endPointName));
     setTimeout(function () {
-      var endPoint = endPoints[endPointName];
-      if (endPoint === undefined) {
+      const found = findEndPoint(endPointName);
+      if (!found) {
         sendError(req, res, 404, 'endPoint not found');
         return;
       }
+      const endPoint = found.endPoint;
 
       if (req.method === 'OPTIONS') {
         sendSuccess(req, res, '');
         return;
       }
 
-      if (req.method !== 'DELETE' && req.method !== 'GET') {
-        var body = '';
-        req.on('data', function (data) {
-          body += data;
-        });
-        req.on('end', function () {
-          req.body = body;
-          console.log('Body: '.bold + req.body);
-          endPoint(req, res, req.body, sendSuccess, sendError);
-        });
-        return;
-      }
+      let rawBody = '';
+      req.setEncoding('utf8');
+      req.on('data', function (data) {
+        rawBody += data;
+      });
+      req.on('end', function () {
+        if (rawBody) {
+          logger.request(style('bold', 'Body: ') + rawBody);
+        }
 
-      var reqUrl = url.parse(req.url, true);
-      endPoint(req, res, reqUrl.query, sendSuccess, sendError);
+        try {
+          req.body = parseBody(rawBody, req.headers['content-type']);
+        } catch (e) {
+          sendError(req, res, 400, 'invalid JSON body: ' + e.message);
+          return;
+        }
+
+        req.query = parseQuery(req.url);
+        req.params = found.params;
+        callEndPoint(endPoint, req, res, mergeParams(req));
+      });
     }, delay);
   };
 
+  /**
+   * finds the endpoint of a path: the endpoint with the same key, or else the
+   * endpoint whose key is a route matching the path (e.g. '/users/:id' for
+   * '/users/42'). If several routes match, the one with the most static
+   * segments wins, then the first declared.
+   * @param  {String} endPointName path after the endpoints root (e.g. '/users/42').
+   * @return {{ endPoint: Function, params: Object }|null}
+   */
+  const findEndPoint = function (endPointName) {
+    if (Object.hasOwn(endPoints, endPointName)) {
+      return { endPoint: endPoints[endPointName], params: {} };
+    }
+
+    const segments = endPointName.split('/');
+    let best = null;
+    for (const key of Object.keys(endPoints)) {
+      const routeSegments = key.split('/');
+      if (!key.includes('/:') || routeSegments.length !== segments.length) {
+        continue;
+      }
+
+      const params = {};
+      let staticSegments = 0;
+      const matches = routeSegments.every(function (routeSegment, index) {
+        const segment = segments[index];
+        if (routeSegment.startsWith(':') && routeSegment.length > 1) {
+          params[routeSegment.slice(1)] = decodeSegment(segment);
+          return segment !== '';
+        }
+        staticSegments++;
+        return routeSegment === segment;
+      });
+
+      if (matches && (!best || staticSegments > best.staticSegments)) {
+        best = { endPoint: endPoints[key], params, staticSegments };
+      }
+    }
+
+    return best && { endPoint: best.endPoint, params: best.params };
+  };
+
+  /**
+   * decodes a path segment (e.g. 'John%20Doe' -> 'John Doe'), or keeps it if it is malformed.
+   * @param  {String} segment
+   * @return {String}
+   */
+  const decodeSegment = function (segment) {
+    try {
+      return decodeURIComponent(segment);
+    } catch (e) {
+      return segment;
+    }
+  };
+
+  /**
+   * parses the body of a request according to its content type.
+   * @param  {String} rawBody
+   * @param  {String} [contentType]
+   * @return {Object|Array|String|Number|Boolean|null|undefined} undefined for an empty body,
+   *  the parsed value for JSON, an object for a url encoded form, the raw string otherwise.
+   * @throws {SyntaxError} for an invalid JSON body.
+   */
+  const parseBody = function (rawBody, contentType) {
+    if (!rawBody) {
+      return undefined;
+    }
+
+    const mimeType = (contentType || '').split(';')[0].trim().toLowerCase();
+    if (mimeType === 'application/json' || mimeType.endsWith('+json')) {
+      return JSON.parse(rawBody);
+    }
+
+    if (mimeType === 'application/x-www-form-urlencoded') {
+      return searchParamsToObject(new URLSearchParams(rawBody));
+    }
+
+    return rawBody;
+  };
+
+  /**
+   * merges the parameters of a request: the query string, the body fields
+   * (when the body is an object) and the route parameters, the last ones winning.
+   * @param  {Request} req
+   * @return {Object}
+   */
+  const mergeParams = function (req) {
+    const body = req.body !== null && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    return Object.assign({}, req.query, body, req.params);
+  };
+
+  /**
+   * parses the query string of an url. A repeated key gives an array of values.
+   * @param  {String} reqUrl
+   * @return {Object}
+   */
+  const parseQuery = function (reqUrl) {
+    return searchParamsToObject(new URL(reqUrl, 'http://localhost').searchParams);
+  };
+
+  /**
+   * converts url search params to an object. A repeated key gives an array of values.
+   * @param  {URLSearchParams} searchParams
+   * @return {Object}
+   */
+  const searchParamsToObject = function (searchParams) {
+    const query = {};
+    searchParams.forEach(function (value, key) {
+      if (!Object.prototype.hasOwnProperty.call(query, key)) {
+        query[key] = value;
+      } else {
+        query[key] = [].concat(query[key], value);
+      }
+    });
+    return query;
+  };
+
+  /**
+   * calls an endpoint callback, sending a 500 error instead of crashing
+   * the server if it throws.
+   * @param  {Function} endPoint
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {Object|String} params
+   */
+  const callEndPoint = function (endPoint, req, res, params) {
+    try {
+      endPoint(req, res, params, sendSuccess, sendError);
+    } catch (e) {
+      logger.error(style('red', e.stack || e.toString()));
+      if (res.headersSent) {
+        res.end();
+        return;
+      }
+      sendError(req, res, 500, 'endPoint error: ' + (e.message || e.toString()));
+    }
+  };
+
+  /**
+   * replaces the endpoints (e.g. when the endpoints file is reloaded).
+   * @param {Object} newEndPoints
+   */
+  const setEndPoints = function (newEndPoints) {
+    endPoints = newEndPoints;
+  };
+
   return {
-    endPoints: endPoints,
-    sendSuccess: sendSuccess,
-    sendError: sendError,
-    runEndPoint: runEndPoint
+    runEndPoint: runEndPoint,
+    setEndPoints: setEndPoints
   };
 };
 
-module.exports = Service;
+export default Service;

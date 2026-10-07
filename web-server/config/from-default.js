@@ -1,4 +1,5 @@
-const merge = require('../tools/merge');
-module.exports = function initConfig(defaultConfig) {
+import merge from '../tools/merge.js';
+
+export default function initConfig(defaultConfig) {
   return merge(defaultConfig);
 };

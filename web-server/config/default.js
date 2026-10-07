@@ -1,16 +1,13 @@
-module.exports = {
+export default {
 
   domain: 'localhost',
 
-  port: '8080',
+  port: 8080,
 
   // set to the current directory.
   baseDir: process.cwd(),
 
   root: '/index.html',
-
-  // no debug.
-  isDebug: false,
 
   // no endpoint by default.
   endPointsFilePath: null,
@@ -23,6 +20,9 @@ module.exports = {
 
   // no delay by default.
   delay: 0,
+
+  // request logs by default.
+  isQuiet: false,
 
   // no CORS by default.
   withCORS: false,

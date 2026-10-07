@@ -1,1 +1,1 @@
-module.exports = (...objects) => Object.assign({}, ...objects);
+export default (...objects) => Object.assign({}, ...objects);

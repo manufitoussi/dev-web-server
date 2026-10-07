@@ -3,39 +3,43 @@
 /**
  * @fileOverview Run web server.
  *
- * run with arguments:
- * - BASEDIR x: path to dir containing httpdocs root (default: current dir).
- * - PORT x: port of the wev server (default: 8080).
- * - ENDPOINTS x: relative path to the endpoints definition file.
- * - DELAY x: delay in ms before response (default: 0).
- *  TODO: complete arguments.
+ * Run with the HELP argument to display the available arguments.
  */
 
-require('colors');
-const VERSION = require('../package').version;
-const HttpServer = require('./server/http-server.js');
-const defaultConfig = require('./config/default');
-const configFromDefault = require('./config/from-default');
-const configFromCLI = require('./config/from-cli');
-const configFromFile = require('./config/from-file');
-const config = configFromCLI(configFromFile(configFromDefault(defaultConfig)), process.argv);
+import fs from 'node:fs';
+import HttpServer from './server/http-server.js';
+import style from './tools/style.js';
+import defaultConfig from './config/default.js';
+import configFromDefault from './config/from-default.js';
+import configFromCLI from './config/from-cli.js';
+import configFromFile from './config/from-file.js';
+import validateConfig from './config/validate.js';
 
-console.log(' DEV WEB SERVER '.bold.bgBrightGreen, ' v' + VERSION);
+const VERSION = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url))).version;
+
+console.log(style(['bold', 'bgGreenBright'], ' DEV WEB SERVER '), ' v' + VERSION);
 console.log();
 
 // help message.
 if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
   || process.argv.indexOf('-h') !== -1 || process.argv.indexOf('-?') !== -1) {
-  console.log('Parameters:'.bold.green);
-  console.log('  BASEDIR'.bold.blue, '<x>'.italic.blue, ': path to dir containing httpdocs root (default: current dir).');
-  console.log('  PORT'.bold.blue, '<x>'.italic.blue, ': port of the wev server (default: 8080).');
-  console.log('  ENDPOINTS'.bold.blue,'<x>'.italic.blue, ': relative path to the endpoints definition file.');
-  console.log('  ENDPOINTSROOT'.bold.blue,'<x>'.italic.blue, ':root url for the endpoints (default: /api).');
-  console.log('  SPA'.bold.blue, ': single page application mode.');
-  console.log('  DELAY'.bold.blue,'<x>'.italic.blue, ': delay in ms before response (default: 0).');
-  console.log('  CORS'.bold.blue, ': add CORS headers.');
-  console.log('  CACHE'.bold.blue, ': add cache control headers.');
-  console.log('  HELP'.bold.blue, ': this help message.');
+  console.log(style(['bold', 'green'], 'Parameters:'));
+  const parameters = [
+    ['DOMAIN', true, 'domain of the server (default: localhost).'],
+    ['PORT', true, 'port of the server (default: 8080).'],
+    ['BASEDIR', true, 'path to the website root (default: the launching directory).'],
+    ['DELAY', true, 'delay in ms before each response (default: 0).'],
+    ['ENDPOINTS', true, 'path to the endpoints file (reloaded when it changes).'],
+    ['ENDPOINTSROOT', true, 'root url of the endpoints (default: /api).'],
+    ['SPA', false, 'single page application mode: the missing files are answered with index.html.'],
+    ['CORS', false, 'add the CORS headers.'],
+    ['QUIET', false, 'no request logs (the server errors are still displayed).'],
+    ['CACHE', false, 'allow browser caching (default: responses are sent with a "Cache-Control: no-cache" header).'],
+    ['HELP', false, 'this help message (also --help, -h or -?).'],
+  ];
+  for (const [name, hasValue, description] of parameters) {
+    console.log(' ', style(['bold', 'blue'], name) + (hasValue ? ' ' + style(['italic', 'blue'], '<x>') : ''), ': ' + description);
+  }
 
   console.log() // empty line.
   console.log('You can also use a configuration file. See https://www.npmjs.com/package/dev-web-server for more information.');
@@ -45,5 +49,14 @@ if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
 }
 
 // start the web server.
-var httpServer = new HttpServer(config);
-httpServer.start();
+let config;
+try {
+  config = validateConfig(configFromCLI(configFromFile(configFromDefault(defaultConfig)), process.argv));
+  await new HttpServer(config).start();
+} catch (e) {
+  const reason = e.code === 'EADDRINUSE' ?
+    `the port ${config.port} is already in use on ${config.domain}.` :
+    e.message;
+  console.error(style('red', '[ERROR]'), 'cannot start the server: ' + reason);
+  process.exitCode = 1;
+}

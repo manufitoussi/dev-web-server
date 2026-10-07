@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test Card — dev-web-server</title>
+  <link rel="stylesheet" href="test-card.css">
+  <script type="module" src="test-card.js"></script>
+</head>
+<body>
+  <header class="bars" aria-hidden="true">
+    <div class="bars__main">
+      <span style="--bar: #c0c0c0"></span><span style="--bar: #c0c000"></span><span style="--bar: #00c0c0"></span>
+      <span style="--bar: #00c000"></span><span style="--bar: #c000c0"></span><span style="--bar: #c00000"></span>
+      <span style="--bar: #0000c0"></span>
+    </div>
+    <div class="bars__reverse">
+      <span style="--bar: #0000c0"></span><span style="--bar: #131313"></span><span style="--bar: #c000c0"></span>
+      <span style="--bar: #131313"></span><span style="--bar: #00c0c0"></span><span style="--bar: #131313"></span>
+      <span style="--bar: #c0c0c0"></span>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-label="Server">
+      <div class="card__circle">
+        <p class="card__name">DEV WEB SERVER</p>
+        <p class="card__clock" id="clock">--:--:--</p>
+        <p class="card__info" id="server-info">connecting…</p>
+      </div>
+    </section>
+
+    <section class="summary" aria-live="polite">
+      <p id="summary">Running the checks…</p>
+      <button type="button" id="rerun">Run again</button>
+    </section>
+
+    <p class="hint">Click a check to see its requests and responses, or <span aria-hidden="true">↻</span> to run it again.</p>
+
+    <div class="groups" id="groups"></div>
+
+    <section class="group playground" aria-labelledby="playground-title">
+      <h2 id="playground-title">Try a request</h2>
+      <div class="presets" id="presets" aria-label="Examples"></div>
+      <form id="playground">
+        <div class="playground__line">
+          <label class="visually-hidden" for="method">Method</label>
+          <select id="method" name="method">
+            <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option>
+            <option>DELETE</option><option>OPTIONS</option><option>HEAD</option>
+          </select>
+          <label class="visually-hidden" for="url">URL</label>
+          <input id="url" name="url" type="text" spellcheck="false" autocomplete="off">
+          <button type="submit" class="primary">Send</button>
+        </div>
+        <div class="playground__fields">
+          <label>Content type
+            <select name="type">
+              <option value="">none</option>
+              <option>application/json</option>
+              <option>application/x-www-form-urlencoded</option>
+              <option>text/plain</option>
+            </select>
+          </label>
+          <label>Headers <small>(one "Name: value" per line)</small>
+            <textarea name="headers" rows="2" spellcheck="false"></textarea>
+          </label>
+          <label class="playground__body">Body
+            <textarea name="body" rows="5" spellcheck="false"></textarea>
+          </label>
+        </div>
+        <div class="playground__actions">
+          <small>Ctrl+Enter to send</small>
+          <button type="button" id="copy-curl">Copy as curl</button>
+        </div>
+      </form>
+      <div id="playground-response" aria-live="polite"></div>
+    </section>
+
+    <section class="group media">
+      <h2>Media</h2>
+      <p class="hint">A 1&nbsp;kHz test tone, streamed with <code>Range</code> requests: play it and seek anywhere.</p>
+      <audio controls preload="metadata" src="tone.wav"></audio>
+    </section>
+  </main>
+
+  <footer>
+    <p>Served by <a href="https://www.npmjs.com/package/dev-web-server">dev-web-server</a>. The endpoints of this page are in <code>demo/endpoints.js</code>.</p>
+  </footer>
+</body>
+</html>
