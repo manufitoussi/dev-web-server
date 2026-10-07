@@ -22,6 +22,7 @@ const FLAG_PARAMETERS = {
   withCORS: 'CORS',
   withCache: 'CACHE',
   isSPA: 'SPA',
+  isQuiet: 'QUIET',
 };
 
 /**

@@ -1,6 +1,7 @@
 import ContentTypes from './content-types.js';
 import { applyCommonHeaders } from './headers.js';
 import style from '../tools/style.js';
+import createLogger from '../tools/logger.js';
 
 /**
  * a valid JSONP callback name: a JavaScript identifier, or a dotted path
@@ -31,6 +32,11 @@ const Service = function (config) {
   const endPoints = config.endPoints || {};
 
   /**
+   * logger of the server.
+   */
+  const logger = config.logger || createLogger(false);
+
+  /**
    * sends an error json result object to client.
    * @param  {Request} req
    * @param  {Response} res
@@ -45,7 +51,7 @@ const Service = function (config) {
       return;
     }
 
-    console.error(style('red', '[ERROR]'), style(['bold', 'red'], httpCode), style('red', message));
+    logger.requestError(httpCode, style('red', '[ERROR]'), style(['bold', 'red'], httpCode), style('red', message));
     const isJSONP = jsonpCallback !== undefined;
     if (!result) {
       result = {};
@@ -107,7 +113,7 @@ const Service = function (config) {
    * @param  {String} endPointName
    */
   const runEndPoint = function (req, res, endPointName) {
-    console.log(style('cyan', 'Endpoint: ' + endPointName));
+    logger.request(style('cyan', 'Endpoint: ' + endPointName));
     setTimeout(function () {
       const endPoint = endPoints[endPointName];
       if (endPoint === undefined) {
@@ -127,7 +133,7 @@ const Service = function (config) {
         });
         req.on('end', function () {
           req.body = body;
-          console.log(style('bold', 'Body: ') + req.body);
+          logger.request(style('bold', 'Body: ') + req.body);
           callEndPoint(endPoint, req, res, req.body);
         });
         return;
@@ -166,7 +172,7 @@ const Service = function (config) {
     try {
       endPoint(req, res, params, sendSuccess, sendError);
     } catch (e) {
-      console.error(style('red', e.stack || e.toString()));
+      logger.error(style('red', e.stack || e.toString()));
       if (res.headersSent) {
         res.end();
         return;

@@ -31,6 +31,7 @@ if (process.argv.indexOf('HELP') !== -1 || process.argv.indexOf('--help') !== -1
   console.log(style(['bold', 'blue'], '  SPA'), ': single page application mode.');
   console.log(style(['bold', 'blue'], '  DELAY'), style(['italic', 'blue'], '<x>'), ': delay in ms before response (default: 0).');
   console.log(style(['bold', 'blue'], '  CORS'), ': add CORS headers.');
+  console.log(style(['bold', 'blue'], '  QUIET'), ': no request logs (the server errors are still displayed).');
   console.log(style(['bold', 'blue'], '  CACHE'), ': allow browser caching (default: responses are sent with a "Cache-Control: no-cache" header).');
   console.log(style(['bold', 'blue'], '  HELP'), ': this help message.');
 

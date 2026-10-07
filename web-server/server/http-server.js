@@ -8,6 +8,7 @@ import createActions from './service.js';
 import DEFAULT from '../config/default.js';
 import merge from '../tools/merge.js';
 import style from '../tools/style.js';
+import createLogger from '../tools/logger.js';
 import { applyCommonHeaders } from './headers.js';
 
 /**
@@ -17,6 +18,7 @@ import { applyCommonHeaders } from './headers.js';
  */
 const HttpServer = function (config) {
   config = config || merge(DEFAULT);
+  const logger = createLogger(config.isQuiet);
   let service;
 
   /**
@@ -33,8 +35,8 @@ const HttpServer = function (config) {
       const module = await import(pathToFileURL(config.endPointsFilePath).href);
       return module.default || {};
     } catch (e) {
-      console.error(style('red', '[ERROR]'), 'cannot load endpoints file.');
-      console.error(style('red', e.stack || e.toString()));
+      logger.error(style('red', '[ERROR]'), 'cannot load endpoints file.');
+      logger.error(style('red', e.stack || e.toString()));
       return {};
     }
   };
@@ -53,7 +55,7 @@ const HttpServer = function (config) {
   const html = {
     error: function error(errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
-      console.error(style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
+      logger.requestError(opt_code, style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
       const htmlError = '<div style="color: red;">' + escapeHtml(errMsg) + '</div>';
       applyCommonHeaders(res, config);
 
@@ -93,19 +95,20 @@ const HttpServer = function (config) {
       endPoints: await loadEndPoints(),
       withCORS: config.withCORS,
       withCache: config.withCache,
+      logger: logger,
     });
 
     const server = http.createServer(function (req, res) {
-      console.log('------------------------');
-      console.log('time:', style('bold', (new Date()).toISOString()));
-      console.log('method: ' + style(['bold', 'yellow'], req.method));
-      console.log('url: ' + style(['bold', 'green'], req.url));
+      logger.request('------------------------');
+      logger.request('time:', style('bold', (new Date()).toISOString()));
+      logger.request('method: ' + style(['bold', 'yellow'], req.method));
+      logger.request('url: ' + style(['bold', 'green'], req.url));
 
       const render = function render(askedUrl) {
         const url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
 
         if (url.search) {
-          console.log('search: ' + url.search);
+          logger.request('search: ' + url.search);
         }
 
         if (url.pathname === '/') {
@@ -117,7 +120,7 @@ const HttpServer = function (config) {
         if (url.pathname === endPointsRoot || url.pathname.startsWith(endPointsRoot + '/')) {
           // this is an endpoint request.
           const endPoint = url.pathname.substring(endPointsRoot.length);
-          console.log('endPoint:', endPoint);
+          logger.request('endPoint:', endPoint);
           service.runEndPoint(req, res, endPoint);
           return;
         }
@@ -141,7 +144,7 @@ const HttpServer = function (config) {
 
         // full path of the file
         let filePath = path.resolve(config.baseDir, '.' + pathname);
-        console.log('filePath: ' + style('bold', filePath));
+        logger.request('filePath: ' + style('bold', filePath));
 
         // refuses any path outside of the base directory (e.g. '/..%2f..%2fetc/passwd').
         const baseDir = path.resolve(config.baseDir);
@@ -158,23 +161,23 @@ const HttpServer = function (config) {
         if (config.isSPA && !isFile(filePath)) {
           // if the file does not exist, the server will return the SPA root file.
           filePath = path.resolve(config.baseDir, '.' + config.root);
-          console.log('Redirect to SPA root file:', style('bold', filePath));
+          logger.request('Redirect to SPA root file:', style('bold', filePath));
         }
 
         // file name with extension
         const baseFile = path.basename(filePath);
-        console.log('base: ' + style('bold', baseFile));
+        logger.request('base: ' + style('bold', baseFile));
 
         // file extension
         const fileExt = path.extname(filePath);
-        console.log('ext: ' + style('bold', fileExt));
+        logger.request('ext: ' + style('bold', fileExt));
 
         // the full path of directory that contains the file.
         const dirFile = path.dirname(filePath);
-        console.log('dir: ' + style('bold', dirFile));
+        logger.request('dir: ' + style('bold', dirFile));
 
         const contentType = ContentTypes.lookup(fileExt);
-        console.log('content type:', style('bold', contentType));
+        logger.request('content type:', style('bold', contentType));
 
         // displays the requested file:
         if (isFile(filePath)) {
