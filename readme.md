@@ -280,7 +280,7 @@ Run the demo with:
 npm start
 ```
 
-It serves a test card at `http://localhost:8080/`: the page checks live, from the browser, the features of the server (static files, content types, ranges, endpoints, parameters, errors, JSONP) and shows the active options. Its files are in `demo/public/`, and its endpoints in `demo/endpoints.js`. You can add the usual parameters, e.g. `npm start -- CORS DELAY 500`.
+It serves a test card at `http://localhost:8080/`: the page checks live, from the browser, the features of the server (static files, content types, ranges, endpoints, parameters, errors, JSONP) and shows the active options. Click a check to see its requests and responses, or run it again. The *Try a request* section sends your own requests (method, URL, content type, headers, body), shows the full response, and copies them as `curl` commands; its examples fill it in one click. Its files are in `demo/public/`, and its endpoints in `demo/endpoints.js`. You can add the usual parameters, e.g. `npm start -- CORS DELAY 500`.
 
 ![Test card](docs/test-card.png)
 
