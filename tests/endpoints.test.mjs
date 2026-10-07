@@ -8,7 +8,8 @@ const ENDPOINTS = `
 let count = 0;
 module.exports = {
   '/hello': (req, res, params, sendSuccess) => sendSuccess(req, res, { hello: params.name }),
-  '/echo': (req, res, params, sendSuccess) => sendSuccess(req, res, { method: req.method, params }),
+  '/echo': (req, res, params, sendSuccess) =>
+    sendSuccess(req, res, { method: req.method, params, query: req.query, body: req.body ?? null, routeParams: req.params }),
   '/count': (req, res, params, sendSuccess) => sendSuccess(req, res, { count: count++ }),
   '/jsonp': (req, res, params, sendSuccess) => sendSuccess(req, res, { ok: true }, params.callback),
   '/error': (req, res, params, sendSuccess, sendError) => sendError(req, res, 401, 'not allowed'),
@@ -58,19 +59,74 @@ describe('endpoints', () => {
     assert.strictEqual(JSON.parse(res.body), 'sub path');
   });
 
-  it('passes the query string parameters for GET and DELETE', async () => {
-    for (const method of ['GET', 'DELETE']) {
-      const res = await request(server.port, '/api/echo?a=1&b=x%20y&a=2', { method });
-      assert.deepStrictEqual(JSON.parse(res.body), { method, params: { a: ['1', '2'], b: 'x y' } }, method);
+  // sends a request to the echo endpoint and returns its json response.
+  const echo = async (path, options) => {
+    const res = await request(server.port, '/api/echo' + path, options);
+    assert.strictEqual(res.status, 200, res.body);
+    return JSON.parse(res.body);
+  };
+
+  it('passes the query string parameters', async () => {
+    for (const method of ['GET', 'DELETE', 'POST']) {
+      const result = await echo('?a=1&b=x%20y&a=2', { method });
+      const query = { a: ['1', '2'], b: 'x y' };
+      assert.deepStrictEqual(result, { method, params: query, query, body: null, routeParams: {} }, method);
     }
   });
 
-  it('passes the raw body for the other verbs', async () => {
-    for (const method of ['POST', 'PUT', 'PATCH']) {
-      const res = await request(server.port, '/api/echo?ignored=1', { method, body: '{"a":1}' });
-      assert.strictEqual(res.status, 200, method);
-      assert.deepStrictEqual(JSON.parse(res.body), { method, params: '{"a":1}' }, method);
+  it('parses a JSON body and merges its fields into the params', async () => {
+    for (const method of ['POST', 'PUT', 'PATCH', 'DELETE']) {
+      const result = await echo('?a=1&b=2', {
+        method,
+        body: '{"b":"body","c":[1,2]}',
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+      });
+      assert.deepStrictEqual(result.body, { b: 'body', c: [1, 2] }, method);
+      assert.deepStrictEqual(result.query, { a: '1', b: '2' }, method);
+      // the body fields override the query string parameters.
+      assert.deepStrictEqual(result.params, { a: '1', b: 'body', c: [1, 2] }, method);
     }
+  });
+
+  it('parses the +json content types', async () => {
+    const result = await echo('', { method: 'POST', body: '{"a":1}', headers: { 'content-type': 'application/merge-patch+json' } });
+    assert.deepStrictEqual(result.params, { a: 1 });
+  });
+
+  it('does not merge a JSON body that is not an object', async () => {
+    const result = await echo('?a=1', { method: 'POST', body: '[1,2]', headers: { 'content-type': 'application/json' } });
+    assert.deepStrictEqual(result.body, [1, 2]);
+    assert.deepStrictEqual(result.params, { a: '1' });
+  });
+
+  it('parses a url encoded form body', async () => {
+    const result = await echo('', {
+      method: 'POST',
+      body: 'name=John+Doe&tag=a&tag=b',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    });
+    assert.deepStrictEqual(result.body, { name: 'John Doe', tag: ['a', 'b'] });
+    assert.deepStrictEqual(result.params, { name: 'John Doe', tag: ['a', 'b'] });
+  });
+
+  it('keeps the raw body for the other content types', async () => {
+    for (const headers of [{ 'content-type': 'text/plain' }, {}]) {
+      const result = await echo('?a=1', { method: 'POST', body: '{"a":2}', headers });
+      assert.strictEqual(result.body, '{"a":2}');
+      assert.deepStrictEqual(result.params, { a: '1' });
+    }
+  });
+
+  it('returns 400 for an invalid JSON body', async () => {
+    const res = await request(server.port, '/api/echo', { method: 'POST', body: '{a:1}', headers: { 'content-type': 'application/json' } });
+    assert.strictEqual(res.status, 400);
+    assert.match(JSON.parse(res.body).error.message, /^invalid JSON body/);
+  });
+
+  it('reads a body sent in several chunks with multibyte characters', async () => {
+    const big = 'é'.repeat(100000);
+    const result = await echo('', { method: 'POST', body: JSON.stringify({ big }), headers: { 'content-type': 'application/json' } });
+    assert.strictEqual(result.params.big, big);
   });
 
   it('answers OPTIONS requests without calling the endpoint', async () => {
