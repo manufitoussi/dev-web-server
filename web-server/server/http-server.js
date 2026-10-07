@@ -39,11 +39,22 @@ var HttpServer = function (config) {
     }
   };
 
+  /**
+   * escapes the html special characters of a text.
+   * @param {string} text
+   * @returns {string}
+   */
+  var escapeHtml = function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  };
+
   var html = {
     error: function error(errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error(style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
-      var htmlError = '<div style="color: red;">' + errMsg + '</div>';
+      var htmlError = '<div style="color: red;">' + escapeHtml(errMsg) + '</div>';
       if(config.withCORS) {
         addCorsHeaders(res)
       }
@@ -114,6 +125,16 @@ var HttpServer = function (config) {
           const endPoint = url.pathname.substring(endPointsRoot.length);
           console.log('endPoint:', endPoint);
           service.runEndPoint(req, res, endPoint);
+          return;
+        }
+
+        // answers the preflight requests on static files.
+        if (req.method === 'OPTIONS') {
+          if (config.withCORS) {
+            addCorsHeaders(res);
+          }
+          res.writeHead(204, { 'Allow': 'GET, HEAD, OPTIONS' });
+          res.end();
           return;
         }
 

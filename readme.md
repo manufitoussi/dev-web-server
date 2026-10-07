@@ -40,7 +40,11 @@ The SPA mode permits to redirect all requests to your base file (default: `index
 
 ## Content types
 
-The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension. If nothing matches, default content type is used : `application/octet-stream`.
+The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension, with its charset for the text files (e.g. `text/html; charset=utf-8`). If nothing matches, default content type is used : `application/octet-stream`.
+
+## OPTIONS requests
+
+An `OPTIONS` request on a static file is answered with a `204` status and an `Allow: GET, HEAD, OPTIONS` header (and the CORS headers if `CORS` is active), so the CORS preflight requests succeed.
 
 # Required environment
 
@@ -168,6 +172,8 @@ The `sendSuccess` callback allows to send a successful response. It contains the
 | res | `Response` | [NodeJS] response object |
 | result | `Object` | Result object of the request |
 | jsonpCallback | 'string' | **[optional]** JSONP callback function name to activate JSONP response |
+
+A JSONP response is sent with the `application/javascript` content type. The callback name has to be a JavaScript identifier or a dotted path of identifiers (e.g. `myCallback` or `app.callbacks.done`): otherwise a `400` JSON error is sent.
 
 #### Failed callback
 

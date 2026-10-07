@@ -42,7 +42,7 @@ describe('endpoints', () => {
   it('sends a json success response', async () => {
     const res = await request(server.port, '/api/hello?name=world');
     assert.strictEqual(res.status, 200);
-    assert.strictEqual(res.headers['content-type'], 'application/json');
+    assert.strictEqual(res.headers['content-type'], 'application/json; charset=utf-8');
     assert.deepStrictEqual(JSON.parse(res.body), { hello: 'world' });
   });
 
@@ -82,7 +82,7 @@ describe('endpoints', () => {
   it('sends a json error response', async () => {
     const res = await request(server.port, '/api/error');
     assert.strictEqual(res.status, 401);
-    assert.strictEqual(res.headers['content-type'], 'application/json');
+    assert.strictEqual(res.headers['content-type'], 'application/json; charset=utf-8');
     assert.deepStrictEqual(JSON.parse(res.body), { error: { code: 401, message: 'not allowed' } });
   });
 
@@ -95,11 +95,25 @@ describe('endpoints', () => {
   it('sends JSONP responses', async () => {
     const res = await request(server.port, '/api/jsonp?callback=myCallback');
     assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-type'], 'application/javascript; charset=utf-8');
     assert.strictEqual(res.body, 'myCallback({"ok":true});');
+
+    const dotted = await request(server.port, '/api/jsonp?callback=app.callbacks.$done_1');
+    assert.strictEqual(dotted.body, 'app.callbacks.$done_1({"ok":true});');
 
     const error = await request(server.port, '/api/jsonpError?callback=myCallback');
     assert.strictEqual(error.status, 400);
+    assert.strictEqual(error.headers['content-type'], 'application/javascript; charset=utf-8');
     assert.strictEqual(error.body, 'myCallback({"error":{"code":400,"message":"bad"}});');
+  });
+
+  it('refuses an invalid JSONP callback name', async () => {
+    for (const p of ['/api/jsonp', '/api/jsonpError']) {
+      const res = await request(server.port, p + '?callback=' + encodeURIComponent('alert(1);x'));
+      assert.strictEqual(res.status, 400, p);
+      assert.strictEqual(res.headers['content-type'], 'application/json; charset=utf-8', p);
+      assert.deepStrictEqual(JSON.parse(res.body), { error: { code: 400, message: 'invalid JSONP callback name' } }, p);
+    }
   });
 
   it('returns a json 404 error for an unknown endpoint', async () => {

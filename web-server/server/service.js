@@ -5,6 +5,12 @@ import style from '../tools/style.js';
 var DELAY = 0;
 
 /**
+ * a valid JSONP callback name: a JavaScript identifier, or a dotted path
+ * of identifiers (e.g. 'myCallback' or 'app.callbacks.done').
+ */
+var JSONP_CALLBACK = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/;
+
+/**
  * Service class.
  *
  * @param {object}
@@ -36,6 +42,11 @@ var Service = function (config) {
    * @param  {String} [jsonpCallback]
    */
   var sendError = function (req, res, httpCode, message, result, jsonpCallback) {
+    if (jsonpCallback !== undefined && !JSONP_CALLBACK.test(jsonpCallback)) {
+      sendError(req, res, 400, 'invalid JSONP callback name');
+      return;
+    }
+
     console.error(style('red', '[ERROR]'), style(['bold', 'red'], httpCode), style('red', message));
     var isJSONP = jsonpCallback !== undefined;
     if (!result) {
@@ -61,7 +72,9 @@ var Service = function (config) {
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(httpCode);
+      res.writeHead(httpCode, {
+        "Content-Type": ContentTypes.lookup('.js')
+      });
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
@@ -74,6 +87,10 @@ var Service = function (config) {
    * @param  {String} [jsonpCallback]
    */
   var sendSuccess = function (req, res, result, jsonpCallback) {
+    if (jsonpCallback !== undefined && !JSONP_CALLBACK.test(jsonpCallback)) {
+      sendError(req, res, 400, 'invalid JSONP callback name');
+      return;
+    }
 
     if (config.withCORS) {
       addCorsHeaders(res);
@@ -90,7 +107,9 @@ var Service = function (config) {
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(200);
+      res.writeHead(200, {
+        "Content-Type": ContentTypes.lookup('.js')
+      });
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
