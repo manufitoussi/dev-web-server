@@ -1,5 +1,9 @@
 DEV WEB SERVER
 ==============
+[![CI](https://github.com/manufitoussi/dev-web-server/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/manufitoussi/dev-web-server/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dev-web-server)](https://www.npmjs.com/package/dev-web-server)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A simple web & API server for your development.
 -----------------------------------------------
 
@@ -257,6 +261,12 @@ npm test
 The tests run the real command line application and query it over HTTP (see `tests/`).
 
 The decisions taken on the project are recorded in [docs/decisions.md](docs/decisions.md).
+
+The tests run on GitHub Actions with Node.js 22 and 24 for each push and pull request.
+
+# License
+
+[MIT](LICENSE)
 
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/
