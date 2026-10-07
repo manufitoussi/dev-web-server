@@ -76,6 +76,11 @@ This file records the decisions taken on the project, with their context, so tha
 **Context.** The detailed request logs are useful by default, but too verbose in some uses.
 **Decision.** The logs stay detailed by default. The `QUIET` option (`isQuiet` in the configuration file) hides the request logs, including the `4xx` error responses. The server errors (`5xx` responses, endpoint exceptions, endpoints file loading), the start errors and the startup lines (version, `Server running at`) are still displayed. The logs go through a small logger (`web-server/tools/logger.js`).
 
+## 2026-10-07 — Streamed files and ranges
+
+**Context.** The files were read entirely in memory before being sent, and the `Range` requests were ignored: a video could not be played from any position.
+**Decision.** The files are streamed with `fs.createReadStream`, with a `Content-Length` header. A single `Range` (`bytes=start-end`, `bytes=start-` or `bytes=-length`) gives a `206` response with the requested bytes, a range outside of the file gives a `416` response, and an unsupported range (multiple ranges, other unit) gives the whole file, as allowed by the HTTP specification. The headers are sent once the file is opened, so an opening error still gives a `500` error. `HEAD` gives the headers only.
+
 ## Pending — Next version number
 
 The ES modules migration and the async `start()` are breaking changes for the code using the internal modules: the next release should be `3.0.0`. The version stays `2.0.0` until the release is decided.

@@ -1,5 +1,6 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
+import fs from 'node:fs';
 import path from 'node:path';
 import { freePort, makeProject, removeProject, request, startCli } from './helpers.mjs';
 
@@ -225,5 +226,97 @@ describe('DELAY', () => {
     const res = await request(server.port, '/');
     assert.strictEqual(res.status, 200);
     assert.ok(Date.now() - begin >= 290, 'the response came too early');
+  });
+});
+
+describe('streaming', () => {
+  // 0123456789 repeated: the byte at index i is the digit i % 10.
+  const DIGITS = '0123456789'.repeat(3);
+  const BIG_SIZE = 5 * 1024 * 1024;
+  let project, server;
+
+  before(async () => {
+    project = makeProject({
+      'digits.txt': DIGITS,
+      'empty.txt': '',
+      'big.bin': 'x'.repeat(BIG_SIZE),
+      'locked.txt': 'locked',
+    });
+    fs.chmodSync(path.join(project, 'locked.txt'), 0o000);
+    server = await start(['BASEDIR', project]);
+  });
+
+  after(async () => {
+    await server.stop();
+    removeProject(project);
+  });
+
+  it('sends the size of the file and accepts ranges', async () => {
+    const res = await request(server.port, '/digits.txt');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-length'], String(DIGITS.length));
+    assert.strictEqual(res.headers['accept-ranges'], 'bytes');
+    assert.strictEqual(res.body, DIGITS);
+  });
+
+  it('streams a big file', async () => {
+    const res = await request(server.port, '/big.bin');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-length'], String(BIG_SIZE));
+    assert.strictEqual(res.body.length, BIG_SIZE);
+  });
+
+  it('serves an empty file', async () => {
+    const res = await request(server.port, '/empty.txt');
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-length'], '0');
+    assert.strictEqual(res.body, '');
+  });
+
+  it('sends the requested range', async () => {
+    const cases = {
+      'bytes=2-5': [2, 5],
+      'bytes=25-': [25, 29],
+      'bytes=-3': [27, 29],
+      'bytes=28-100': [28, 29],
+      'bytes=-100': [0, 29],
+    };
+    for (const [range, [start, end]] of Object.entries(cases)) {
+      const res = await request(server.port, '/digits.txt', { headers: { range } });
+      assert.strictEqual(res.status, 206, range);
+      assert.strictEqual(res.headers['content-range'], `bytes ${start}-${end}/${DIGITS.length}`, range);
+      assert.strictEqual(res.headers['content-length'], String(end - start + 1), range);
+      assert.strictEqual(res.body, DIGITS.slice(start, end + 1), range);
+    }
+  });
+
+  it('returns 416 for a range outside of the file', async () => {
+    for (const range of ['bytes=30-40', 'bytes=10-5', 'bytes=-0']) {
+      const res = await request(server.port, '/digits.txt', { headers: { range } });
+      assert.strictEqual(res.status, 416, range);
+      assert.strictEqual(res.headers['content-range'], `bytes */${DIGITS.length}`, range);
+    }
+  });
+
+  it('sends the whole file for an unsupported range', async () => {
+    for (const range of ['items=1-2', 'bytes=0-1,4-5', 'bytes=-']) {
+      const res = await request(server.port, '/digits.txt', { headers: { range } });
+      assert.strictEqual(res.status, 200, range);
+      assert.strictEqual(res.body, DIGITS, range);
+    }
+  });
+
+  it('sends only the headers for a HEAD request', async () => {
+    const res = await request(server.port, '/digits.txt', { method: 'HEAD' });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers['content-length'], String(DIGITS.length));
+    assert.strictEqual(res.headers['content-type'], 'text/plain; charset=utf-8');
+    assert.strictEqual(res.body, '');
+  });
+
+  it('returns 500 when the file cannot be read', { skip: process.getuid?.() === 0 && 'root can read any file' }, async () => {
+    const res = await request(server.port, '/locked.txt');
+    assert.strictEqual(res.status, 500);
+    assert.match(res.body, /EACCES/);
   });
 });

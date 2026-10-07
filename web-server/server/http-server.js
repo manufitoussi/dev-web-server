@@ -86,6 +86,81 @@ const HttpServer = function (config) {
   };
 
   /**
+   * parses the Range header of a request ('bytes=start-end', 'bytes=start-' or 'bytes=-length').
+   * @param {string} [header]
+   * @param {number} size size of the file.
+   * @returns {{ start: number, end: number }|null|false} null to send the whole file (no range,
+   *  or an unsupported one like multiple ranges), false if the range cannot be satisfied.
+   */
+  const parseRange = function parseRange(header, size) {
+    const match = /^bytes=(\d*)-(\d*)$/.exec((header || '').trim());
+    if (!match || (match[1] === '' && match[2] === '')) {
+      return null;
+    }
+
+    if (match[1] === '') {
+      // the last bytes of the file.
+      const length = Number(match[2]);
+      return length === 0 ? false : { start: Math.max(size - length, 0), end: size - 1 };
+    }
+
+    const start = Number(match[1]);
+    const end = match[2] === '' ? size - 1 : Math.min(Number(match[2]), size - 1);
+    return start >= size || start > end ? false : { start, end };
+  };
+
+  /**
+   * streams a file (or the requested range of it) to the response.
+   * @param {IncomingMessage} req
+   * @param {ServerResponse} res
+   * @param {string} filePath
+   * @param {string} contentType
+   */
+  const sendFile = function sendFile(req, res, filePath, contentType) {
+    const stats = stat(filePath);
+    const range = parseRange(req.headers.range, stats.size);
+    applyCommonHeaders(res, config);
+    res.setHeader('Accept-Ranges', 'bytes');
+
+    if (range === false) {
+      res.writeHead(416, { 'Content-Range': `bytes */${stats.size}` });
+      res.end();
+      return;
+    }
+
+    const { start, end } = range || { start: 0, end: stats.size - 1 };
+    const headers = {
+      'Content-Type': contentType,
+      'Content-Length': end - start + 1,
+    };
+    if (range) {
+      headers['Content-Range'] = `bytes ${start}-${end}/${stats.size}`;
+    }
+    const status = range ? 206 : 200;
+
+    if (req.method === 'HEAD' || stats.size === 0) {
+      res.writeHead(status, headers);
+      res.end();
+      return;
+    }
+
+    // the headers are sent once the file is opened, so an opening error can still give a 500 error.
+    const stream = fs.createReadStream(filePath, { start, end });
+    stream.once('open', function () {
+      res.writeHead(status, headers);
+      stream.pipe(res);
+    });
+    stream.on('error', function (err) {
+      if (res.headersSent) {
+        logger.error(style('red', '[ERROR]'), style('red', err.message));
+        res.destroy(err);
+        return;
+      }
+      html.error(err.message, res);
+    });
+  };
+
+  /**
    * starts the server.
    * @returns {Promise<http.Server>} resolved when the server listens.
    */
@@ -182,20 +257,9 @@ const HttpServer = function (config) {
         // displays the requested file:
         if (isFile(filePath)) {
 
-          fs.readFile(filePath, function (err, file) {
-            if (err) {
-              html.error(err.message, res);
-              return;
-            }
-
-            setTimeout(function () {
-              applyCommonHeaders(res, config);
-              res.writeHead(200, {
-                "Content-Type": contentType,
-              });
-              res.end(file, 'utf-8');
-            }, config.delay);
-          });
+          setTimeout(function () {
+            sendFile(req, res, filePath, contentType);
+          }, config.delay);
           return;
         }
 
