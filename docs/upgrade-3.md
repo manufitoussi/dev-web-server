@@ -1,5 +1,18 @@
 # Upgrading from 2.x to 3.0
 
+## What's new
+
+- Routes with parameters in the endpoints file (`/users/:id`).
+- The JSON and form bodies are parsed: `params`, `req.query`, `req.body`, `req.params`.
+- The endpoints file is reloaded when it changes, and can be an ES module.
+- The static files are streamed, with `Range` support (videos and audio files can be played from any position) and `HEAD` requests.
+- The `QUIET` option hides the request logs.
+- The content types include their charset, the CORS preflight requests on static files succeed, and the errors (invalid parameters, port already in use) are reported clearly.
+- `npm start` serves an interactive test card.
+- No dependency left but `mime-types`.
+
+The changes below may need an update of your project.
+
 ## Node.js 22 or later
 
 The 3.0 version requires Node.js 22 or later.

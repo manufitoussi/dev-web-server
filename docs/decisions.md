@@ -104,4 +104,4 @@ This file records the decisions taken on the project, with their context, so tha
 
 ## Pending — Next version number
 
-The ES modules migration and the async `start()` are breaking changes for the code using the internal modules: the next release should be `3.0.0`. The version stays `2.0.0` until the release is decided.
+The merged endpoint parameters (the raw body moves from `params` to `req.body`), the Node.js 22 requirement, the stricter parameter validation, and the ES modules migration with the async `start()` are breaking changes: the next release should be `3.0.0`, with [upgrade-3.md](upgrade-3.md) as the base of its release note. The version stays `2.0.0` until the release is decided.

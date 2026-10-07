@@ -17,7 +17,7 @@ describe('help', () => {
       assert.strictEqual(code, 0);
       assert.match(output, /DEV WEB SERVER/);
       assert.match(output, /Parameters:/);
-      for (const param of ['BASEDIR', 'PORT', 'ENDPOINTS', 'ENDPOINTSROOT', 'SPA', 'DELAY', 'CORS', 'CACHE', 'QUIET', 'HELP']) {
+      for (const param of ['DOMAIN', 'PORT', 'BASEDIR', 'DELAY', 'ENDPOINTS', 'ENDPOINTSROOT', 'SPA', 'CORS', 'QUIET', 'CACHE', 'HELP']) {
         assert.match(output, new RegExp(`\\b${param}\\b`), param);
       }
     });
