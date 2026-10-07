@@ -8,7 +8,7 @@ import createActions from './service.js';
 import DEFAULT from '../config/default.js';
 import merge from '../tools/merge.js';
 import style from '../tools/style.js';
-import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
+import { applyCommonHeaders } from './headers.js';
 
 /**
  * HttpServer class.
@@ -55,13 +55,7 @@ var HttpServer = function (config) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error(style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
       var htmlError = '<div style="color: red;">' + escapeHtml(errMsg) + '</div>';
-      if(config.withCORS) {
-        addCorsHeaders(res)
-      }
-
-      if(!config.withCache) {
-        addCashControlHeader(res, 'no-cache');
-      }
+      applyCommonHeaders(res, config);
 
       res.writeHead(opt_code, {
         "Content-Type": ContentTypes.lookup('.html')
@@ -130,9 +124,7 @@ var HttpServer = function (config) {
 
         // answers the preflight requests on static files.
         if (req.method === 'OPTIONS') {
-          if (config.withCORS) {
-            addCorsHeaders(res);
-          }
+          applyCommonHeaders(res, config);
           res.writeHead(204, { 'Allow': 'GET, HEAD, OPTIONS' });
           res.end();
           return;
@@ -194,14 +186,7 @@ var HttpServer = function (config) {
             }
 
             setTimeout(function () {
-              if(config.withCORS) {
-                addCorsHeaders(res)
-              }
-
-              if(!config.withCache) {
-                addCashControlHeader(res, 'no-cache');
-              }
-
+              applyCommonHeaders(res, config);
               res.writeHead(200, {
                 "Content-Type": contentType,
               });

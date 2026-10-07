@@ -1,5 +1,5 @@
 import ContentTypes from './content-types.js';
-import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
+import { applyCommonHeaders } from './headers.js';
 import style from '../tools/style.js';
 
 var DELAY = 0;
@@ -58,13 +58,7 @@ var Service = function (config) {
       message: message
     };
 
-    if (config.withCORS) {
-      addCorsHeaders(res);
-    }
-
-    if (!config.withCache) {
-      addCashControlHeader(res, 'no-cache');
-    }
+    applyCommonHeaders(res, config);
 
     if (!isJSONP) {
       res.writeHead(httpCode, {
@@ -92,13 +86,7 @@ var Service = function (config) {
       return;
     }
 
-    if (config.withCORS) {
-      addCorsHeaders(res);
-    }
-
-    if (!config.withCache) {
-      addCashControlHeader(res, 'no-cache');
-    }
+    applyCommonHeaders(res, config);
 
     var isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {
