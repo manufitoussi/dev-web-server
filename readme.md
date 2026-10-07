@@ -42,7 +42,7 @@ The requested file content types is resolved with [mime-types]. This tool looks 
 
 # Required environment
 
-* A release of [NodeJS] >= `5.0.0` must be installed on your system.
+* A release of [NodeJS] >= `22.0.0` must be installed on your system.
 
 # Installation
 

@@ -1,5 +1,4 @@
 var ContentTypes = require('./content-types.js');
-var url = require('url');
 var DELAY = 0;
 
 const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
@@ -128,9 +127,25 @@ var Service = function (config) {
         return;
       }
 
-      var reqUrl = url.parse(req.url, true);
-      callEndPoint(endPoint, req, res, reqUrl.query);
+      callEndPoint(endPoint, req, res, parseQuery(req.url));
     }, delay);
+  };
+
+  /**
+   * parses the query string of an url. A repeated key gives an array of values.
+   * @param  {String} reqUrl
+   * @return {Object}
+   */
+  var parseQuery = function (reqUrl) {
+    var query = {};
+    new URL(reqUrl, 'http://localhost').searchParams.forEach(function (value, key) {
+      if (!Object.prototype.hasOwnProperty.call(query, key)) {
+        query[key] = value;
+      } else {
+        query[key] = [].concat(query[key], value);
+      }
+    });
+    return query;
   };
 
   /**

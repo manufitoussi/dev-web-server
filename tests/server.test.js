@@ -48,6 +48,7 @@ describe('dev-web-server', () => {
     fs.writeFileSync(endPointsFilePath, `
       module.exports = {
         '/hello': (req, res, params, sendSuccess) => sendSuccess(req, res, { hello: params.name }),
+        '/params': (req, res, params, sendSuccess) => sendSuccess(req, res, params),
         '/boom': () => { throw new Error('boom'); },
       };
     `);
@@ -107,6 +108,11 @@ describe('dev-web-server', () => {
     const res = await get(port, '/api/hello?name=world');
     assert.strictEqual(res.status, 200);
     assert.deepStrictEqual(JSON.parse(res.body), { hello: 'world' });
+  });
+
+  it('passes the query string parameters to an endpoint', async () => {
+    const res = await get(port, '/api/params?a=1&b=x%20y&a=2');
+    assert.deepStrictEqual(JSON.parse(res.body), { a: ['1', '2'], b: 'x y' });
   });
 
   it('returns 500 and keeps running when an endpoint throws', async () => {
