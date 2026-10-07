@@ -1,8 +1,12 @@
 import ContentTypes from './content-types.js';
-import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
+import { applyCommonHeaders } from './headers.js';
 import style from '../tools/style.js';
 
-var DELAY = 0;
+/**
+ * a valid JSONP callback name: a JavaScript identifier, or a dotted path
+ * of identifiers (e.g. 'myCallback' or 'app.callbacks.done').
+ */
+const JSONP_CALLBACK = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/;
 
 /**
  * Service class.
@@ -11,20 +15,20 @@ var DELAY = 0;
  *          configuration
  * @returns {Service}
  */
-var Service = function (config) {
+const Service = function (config) {
   config = config || {};
 
   /**
    * Delay before running process in ms.
    * @type {int}
    */
-  var delay = config.delay === undefined ? DELAY : config.delay;
+  const delay = config.delay || 0;
 
   /**
    * all the endPoint callbacks.
    * @type {Object}
    */
-  var endPoints = config.endPoints || {};
+  const endPoints = config.endPoints || {};
 
   /**
    * sends an error json result object to client.
@@ -35,9 +39,14 @@ var Service = function (config) {
    * @param  {Object} result
    * @param  {String} [jsonpCallback]
    */
-  var sendError = function (req, res, httpCode, message, result, jsonpCallback) {
+  const sendError = function (req, res, httpCode, message, result, jsonpCallback) {
+    if (jsonpCallback !== undefined && !JSONP_CALLBACK.test(jsonpCallback)) {
+      sendError(req, res, 400, 'invalid JSONP callback name');
+      return;
+    }
+
     console.error(style('red', '[ERROR]'), style(['bold', 'red'], httpCode), style('red', message));
-    var isJSONP = jsonpCallback !== undefined;
+    const isJSONP = jsonpCallback !== undefined;
     if (!result) {
       result = {};
     }
@@ -47,13 +56,7 @@ var Service = function (config) {
       message: message
     };
 
-    if (config.withCORS) {
-      addCorsHeaders(res);
-    }
-
-    if (!config.withCache) {
-      addCashControlHeader(res, 'no-cache');
-    }
+    applyCommonHeaders(res, config);
 
     if (!isJSONP) {
       res.writeHead(httpCode, {
@@ -61,7 +64,9 @@ var Service = function (config) {
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(httpCode);
+      res.writeHead(httpCode, {
+        "Content-Type": ContentTypes.lookup('.js')
+      });
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
@@ -73,24 +78,24 @@ var Service = function (config) {
    * @param  {Object} result
    * @param  {String} [jsonpCallback]
    */
-  var sendSuccess = function (req, res, result, jsonpCallback) {
-
-    if (config.withCORS) {
-      addCorsHeaders(res);
+  const sendSuccess = function (req, res, result, jsonpCallback) {
+    if (jsonpCallback !== undefined && !JSONP_CALLBACK.test(jsonpCallback)) {
+      sendError(req, res, 400, 'invalid JSONP callback name');
+      return;
     }
 
-    if (!config.withCache) {
-      addCashControlHeader(res, 'no-cache');
-    }
+    applyCommonHeaders(res, config);
 
-    var isJSONP = jsonpCallback !== undefined;
+    const isJSONP = jsonpCallback !== undefined;
     if (!isJSONP) {
       res.writeHead(200, {
         "Content-Type": ContentTypes.lookup('.json')
       });
       res.end(JSON.stringify(result), 'utf-8');
     } else {
-      res.writeHead(200);
+      res.writeHead(200, {
+        "Content-Type": ContentTypes.lookup('.js')
+      });
       res.end(jsonpCallback + '(' + JSON.stringify(result) + ');', 'utf-8');
     }
   };
@@ -101,10 +106,10 @@ var Service = function (config) {
    * @param  {Response} res
    * @param  {String} endPointName
    */
-  var runEndPoint = function (req, res, endPointName) {
+  const runEndPoint = function (req, res, endPointName) {
     console.log(style('cyan', 'Endpoint: ' + endPointName));
     setTimeout(function () {
-      var endPoint = endPoints[endPointName];
+      const endPoint = endPoints[endPointName];
       if (endPoint === undefined) {
         sendError(req, res, 404, 'endPoint not found');
         return;
@@ -116,7 +121,7 @@ var Service = function (config) {
       }
 
       if (req.method !== 'DELETE' && req.method !== 'GET') {
-        var body = '';
+        let body = '';
         req.on('data', function (data) {
           body += data;
         });
@@ -137,8 +142,8 @@ var Service = function (config) {
    * @param  {String} reqUrl
    * @return {Object}
    */
-  var parseQuery = function (reqUrl) {
-    var query = {};
+  const parseQuery = function (reqUrl) {
+    const query = {};
     new URL(reqUrl, 'http://localhost').searchParams.forEach(function (value, key) {
       if (!Object.prototype.hasOwnProperty.call(query, key)) {
         query[key] = value;
@@ -157,7 +162,7 @@ var Service = function (config) {
    * @param  {Response} res
    * @param  {Object|String} params
    */
-  var callEndPoint = function (endPoint, req, res, params) {
+  const callEndPoint = function (endPoint, req, res, params) {
     try {
       endPoint(req, res, params, sendSuccess, sendError);
     } catch (e) {
@@ -171,9 +176,6 @@ var Service = function (config) {
   };
 
   return {
-    endPoints: endPoints,
-    sendSuccess: sendSuccess,
-    sendError: sendError,
     runEndPoint: runEndPoint
   };
 };

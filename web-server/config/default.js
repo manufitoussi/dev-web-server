@@ -2,15 +2,12 @@ export default {
 
   domain: 'localhost',
 
-  port: '8080',
+  port: 8080,
 
   // set to the current directory.
   baseDir: process.cwd(),
 
   root: '/index.html',
-
-  // no debug.
-  isDebug: false,
 
   // no endpoint by default.
   endPointsFilePath: null,

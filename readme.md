@@ -40,7 +40,11 @@ The SPA mode permits to redirect all requests to your base file (default: `index
 
 ## Content types
 
-The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension. If nothing matches, default content type is used : `application/octet-stream`.
+The requested file content types is resolved with [mime-types]. This tool looks up the content type from the requested file extension, with its charset for the text files (e.g. `text/html; charset=utf-8`). If nothing matches, default content type is used : `application/octet-stream`.
+
+## OPTIONS requests
+
+An `OPTIONS` request on a static file is answered with a `204` status and an `Allow: GET, HEAD, OPTIONS` header (and the CORS headers if `CORS` is active), so the CORS preflight requests succeed.
 
 # Required environment
 
@@ -76,6 +80,8 @@ With this command, the application will create a web server :
 - without any time delay
 - without API endpoints.
 
+If the server cannot start (e.g. the port is already in use), an error message is displayed and the application exits with the code `1`.
+
 ## The CLI Parameters
 
 | Parameter   | Description      |
@@ -90,6 +96,8 @@ With this command, the application will create a web server :
 | `SPA`       |  Activate SPA mode (default : `false`) |
 | `CORS`      |  active CORS headers in responses |
 | `CACHE`     |  allow browser caching: without it, responses are sent with a `Cache-Control: no-cache` header |
+
+`PORT` has to be an integer between `0` and `65535`, and `DELAY` a positive integer. If a parameter value is missing or invalid, an error message is displayed and the application exits with the code `1`.
 
 ## Examples
 
@@ -107,6 +115,7 @@ This command will launch a web server :
 
 We can use a JSON configuration file at the launching directory : `dev-web-server.json`.
 Any argument in the command line will override the corresponding one in this file.
+The values are validated like the command line arguments: an invalid value, or a file that is not valid JSON, stops the application with an error message.
 
 The JSON configuration file has to contain the following properties:
 
@@ -166,6 +175,8 @@ The `sendSuccess` callback allows to send a successful response. It contains the
 | res | `Response` | [NodeJS] response object |
 | result | `Object` | Result object of the request |
 | jsonpCallback | 'string' | **[optional]** JSONP callback function name to activate JSONP response |
+
+A JSONP response is sent with the `application/javascript` content type. The callback name has to be a JavaScript identifier or a dotted path of identifiers (e.g. `myCallback` or `app.callbacks.done`): otherwise a `400` JSON error is sent.
 
 #### Failed callback
 
@@ -242,6 +253,10 @@ Run the unit tests:
 ```bash
 npm test
 ```
+
+The tests run the real command line application and query it over HTTP (see `tests/`).
+
+The decisions taken on the project are recorded in [docs/decisions.md](docs/decisions.md).
 
 [NodeJS]: http://nodejs.org/
 [npm]: https://npmjs.org/

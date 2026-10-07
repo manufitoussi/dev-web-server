@@ -8,14 +8,14 @@ import createActions from './service.js';
 import DEFAULT from '../config/default.js';
 import merge from '../tools/merge.js';
 import style from '../tools/style.js';
-import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
+import { applyCommonHeaders } from './headers.js';
 
 /**
  * HttpServer class.
  * @param {object} config
  * @returns {HttpServer}
  */
-var HttpServer = function (config) {
+const HttpServer = function (config) {
   config = config || merge(DEFAULT);
   let service;
 
@@ -24,7 +24,7 @@ var HttpServer = function (config) {
    * or an ES module (export default).
    * @returns {Promise<Object>}
    */
-  var loadEndPoints = async function loadEndPoints() {
+  const loadEndPoints = async function loadEndPoints() {
     if (!config.endPointsFilePath) {
       return {};
     }
@@ -39,18 +39,23 @@ var HttpServer = function (config) {
     }
   };
 
-  var html = {
+  /**
+   * escapes the html special characters of a text.
+   * @param {string} text
+   * @returns {string}
+   */
+  const escapeHtml = function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  };
+
+  const html = {
     error: function error(errMsg, res, opt_code) {
       opt_code = opt_code === undefined ? 500 : opt_code;
       console.error(style('red', '[ERROR]'), style(['bold', 'red'], opt_code), style('red', errMsg));
-      var htmlError = '<div style="color: red;">' + errMsg + '</div>';
-      if(config.withCORS) {
-        addCorsHeaders(res)
-      }
-
-      if(!config.withCache) {
-        addCashControlHeader(res, 'no-cache');
-      }
+      const htmlError = '<div style="color: red;">' + escapeHtml(errMsg) + '</div>';
+      applyCommonHeaders(res, config);
 
       res.writeHead(opt_code, {
         "Content-Type": ContentTypes.lookup('.html')
@@ -60,7 +65,7 @@ var HttpServer = function (config) {
     }
   };
 
-  var stat = function stat(filePath) {
+  const stat = function stat(filePath) {
     try {
       return fs.statSync(filePath);
     } catch (e) {
@@ -68,32 +73,36 @@ var HttpServer = function (config) {
     }
   };
 
-  var isFile = function isFile(filePath) {
-    var stats = stat(filePath);
+  const isFile = function isFile(filePath) {
+    const stats = stat(filePath);
     return !!stats && stats.isFile();
   };
 
-  var isDirectory = function isDirectory(filePath) {
-    var stats = stat(filePath);
+  const isDirectory = function isDirectory(filePath) {
+    const stats = stat(filePath);
     return !!stats && stats.isDirectory();
   };
 
-  var start = async function start() {
+  /**
+   * starts the server.
+   * @returns {Promise<http.Server>} resolved when the server listens.
+   */
+  const start = async function start() {
     service = createActions({
-      delay: config.delay || DEFAULT.delay,
+      delay: config.delay,
       endPoints: await loadEndPoints(),
       withCORS: config.withCORS,
       withCache: config.withCache,
     });
 
-    var server = http.createServer(function (req, res) {
+    const server = http.createServer(function (req, res) {
       console.log('------------------------');
       console.log('time:', style('bold', (new Date()).toISOString()));
       console.log('method: ' + style(['bold', 'yellow'], req.method));
       console.log('url: ' + style(['bold', 'green'], req.url));
 
-      var render = function render(askedUrl) {
-        var url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
+      const render = function render(askedUrl) {
+        const url = new URL(askedUrl, `http://${config.domain}:${config.port}`);
 
         if (url.search) {
           console.log('search: ' + url.search);
@@ -113,8 +122,16 @@ var HttpServer = function (config) {
           return;
         }
 
+        // answers the preflight requests on static files.
+        if (req.method === 'OPTIONS') {
+          applyCommonHeaders(res, config);
+          res.writeHead(204, { 'Allow': 'GET, HEAD, OPTIONS' });
+          res.end();
+          return;
+        }
+
         // decoded path name (e.g. '/my%20file.txt' -> '/my file.txt').
-        var pathname;
+        let pathname;
         try {
           pathname = decodeURIComponent(url.pathname);
         } catch (e) {
@@ -123,11 +140,11 @@ var HttpServer = function (config) {
         }
 
         // full path of the file
-        var filePath = path.resolve(config.baseDir, '.' + pathname);
+        let filePath = path.resolve(config.baseDir, '.' + pathname);
         console.log('filePath: ' + style('bold', filePath));
 
         // refuses any path outside of the base directory (e.g. '/..%2f..%2fetc/passwd').
-        var baseDir = path.resolve(config.baseDir);
+        const baseDir = path.resolve(config.baseDir);
         if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
           html.error(askedUrl + ' not found.', res, 404);
           return;
@@ -145,15 +162,15 @@ var HttpServer = function (config) {
         }
 
         // file name with extension
-        var baseFile = path.basename(filePath);
+        const baseFile = path.basename(filePath);
         console.log('base: ' + style('bold', baseFile));
 
         // file extension
-        var fileExt = path.extname(filePath);
+        const fileExt = path.extname(filePath);
         console.log('ext: ' + style('bold', fileExt));
 
         // the full path of directory that contains the file.
-        var dirFile = path.dirname(filePath);
+        const dirFile = path.dirname(filePath);
         console.log('dir: ' + style('bold', dirFile));
 
         const contentType = ContentTypes.lookup(fileExt);
@@ -169,19 +186,12 @@ var HttpServer = function (config) {
             }
 
             setTimeout(function () {
-              if(config.withCORS) {
-                addCorsHeaders(res)
-              }
-
-              if(!config.withCache) {
-                addCashControlHeader(res, 'no-cache');
-              }
-
+              applyCommonHeaders(res, config);
               res.writeHead(200, {
                 "Content-Type": contentType,
               });
               res.end(file, 'utf-8');
-            }, config.delay || DEFAULT.delay);
+            }, config.delay);
           });
           return;
         }
@@ -192,7 +202,16 @@ var HttpServer = function (config) {
 
       render(req.url);
 
-    }).listen(config.port, config.domain);
+    });
+
+    // waits until the server listens (rejects if the port is already in use for example).
+    await new Promise(function (resolve, reject) {
+      server.once('error', reject);
+      server.listen(config.port, config.domain, function () {
+        server.off('error', reject);
+        resolve();
+      });
+    });
 
     console.log('Server running at', style(['yellow', 'underline'], util.format('http://%s:%s/', config.domain, config.port)));
     console.log('Type [Ctrl+C] to stop the server.');
