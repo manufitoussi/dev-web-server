@@ -1,6 +1,6 @@
-const path = require('path');
+import path from 'node:path';
 
-module.exports = function (config, argv) {
+export default function configFromCLI(config, argv) {
 
   // apply BASEDIR argument if present in the command line.
   var baseDirIndex = argv.indexOf('BASEDIR');
@@ -61,4 +61,4 @@ module.exports = function (config, argv) {
   }
 
   return config;
-};
+}

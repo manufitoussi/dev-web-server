@@ -1,13 +1,14 @@
-require('colors');
-var http = require('http');
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-const ContentTypes = require('./content-types.js');
-const createActions = require('./service.js');
-const DEFAULT = require('../config/default');
-const merge = require('../tools/merge');
-const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
+import 'colors';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import util from 'node:util';
+import { pathToFileURL } from 'node:url';
+import ContentTypes from './content-types.js';
+import createActions from './service.js';
+import DEFAULT from '../config/default.js';
+import merge from '../tools/merge.js';
+import { addCorsHeaders, addCashControlHeader } from './add-cors-headers.js';
 
 /**
  * HttpServer class.
@@ -15,23 +16,28 @@ const { addCorsHeaders, addCashControlHeader } = require('./add-cors-headers');
  * @returns {HttpServer}
  */
 var HttpServer = function (config) {
-  "use strict";
   config = config || merge(DEFAULT);
-  let endpoints = {};
   let service;
-  try {
-    endpoints = config.endPointsFilePath ? require(config.endPointsFilePath) : {};
-  } catch (e) {
-    console.error('[ERROR]'.red, 'cannot load endpoints file.');
-    console.error((e.stack || e.toString()).red);
-  }
 
-  service = createActions({
-    delay: config.delay || DEFAULT.delay,
-    endPoints: endpoints,
-    withCORS: config.withCORS,
-    withCache: config.withCache,
-  });
+  /**
+   * loads the endpoints file. It can be a CommonJS module (module.exports)
+   * or an ES module (export default).
+   * @returns {Promise<Object>}
+   */
+  var loadEndPoints = async function loadEndPoints() {
+    if (!config.endPointsFilePath) {
+      return {};
+    }
+
+    try {
+      const module = await import(pathToFileURL(config.endPointsFilePath).href);
+      return module.default || {};
+    } catch (e) {
+      console.error('[ERROR]'.red, 'cannot load endpoints file.');
+      console.error((e.stack || e.toString()).red);
+      return {};
+    }
+  };
 
   var html = {
     error: function error(errMsg, res, opt_code) {
@@ -72,7 +78,14 @@ var HttpServer = function (config) {
     return !!stats && stats.isDirectory();
   };
 
-  var start = function start() {
+  var start = async function start() {
+    service = createActions({
+      delay: config.delay || DEFAULT.delay,
+      endPoints: await loadEndPoints(),
+      withCORS: config.withCORS,
+      withCache: config.withCache,
+    });
+
     var server = http.createServer(function (req, res) {
       console.log('------------------------');
       console.log('time:', (new Date()).toISOString().bold);
@@ -184,9 +197,8 @@ var HttpServer = function (config) {
     return server;
   };
   return {
-    start: start,
-    service: service
+    start: start
   };
 };
 
-module.exports = HttpServer;
+export default HttpServer;
