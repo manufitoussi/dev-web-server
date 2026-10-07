@@ -47,6 +47,10 @@ In SPA mode, the requests of missing files are answered with your base file (def
 
 The content type of the requested file is resolved with [mime-types]. This tool looks up the content type from the requested file extension, with its charset for the text files (e.g. `text/html; charset=utf-8`). If nothing matches, the default content type is used: `application/octet-stream`.
 
+## Streaming and ranges
+
+The files are streamed: big files are not loaded in memory. The responses have a `Content-Length` header and support the `Range` requests (`bytes=start-end`, `bytes=start-` and `bytes=-length`), so the videos and the audio files can be played from any position. A range outside of the file gives a `416` response, and an unsupported range (e.g. multiple ranges) gives the whole file. A `HEAD` request gives the headers only.
+
 ## OPTIONS requests
 
 An `OPTIONS` request on a static file is answered with a `204` status and an `Allow: GET, HEAD, OPTIONS` header (and the CORS headers if `CORS` is active), so the CORS preflight requests succeed.
