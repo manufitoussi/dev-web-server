@@ -63,18 +63,43 @@ An `OPTIONS` request on a static file is answered with a `204` status and an `Al
 
 # Installation
 
-Install the package on your system like this:
+## Without installation
+
+Run the latest version with `npx`:
+
+```bash
+npx dev-web-server
+```
+
+## In a project (recommended)
+
+Add the server as a development dependency, so everyone working on the project uses the same version:
+
+```bash
+npm install --save-dev dev-web-server
+# or: pnpm add -D dev-web-server
+# or: yarn add -D dev-web-server
+```
+
+Then add a script to the `package.json` of the project, with your parameters:
+
+```json
+{
+  "scripts": {
+    "serve": "dev-web-server BASEDIR ./public ENDPOINTS ./mock/endpoints.js"
+  }
+}
+```
+
+and run it with `npm run serve`. The parameters can also be in a `dev-web-server.json` file (see [The JSON Configuration File](#the-json-configuration-file)).
+
+## Globally
 
 ```bash
 npm install -g dev-web-server
 ```
 
-# Uninstallation
-Uninstall the package with the following command:
-
-```bash
-npm uninstall -g dev-web-server
-```
+The `dev-web-server` command is then available everywhere. Uninstall it with `npm uninstall -g dev-web-server`.
 
 # Usage
 
@@ -85,11 +110,7 @@ To launch the web server with default parameters:
 dev-web-server
 ```
 
-or, without installing it:
-
-```bash
-npx dev-web-server
-```
+(or `npx dev-web-server`, or your `package.json` script, see [Installation](#installation)).
 
 With this command, the application creates a web server:
 - at the URL `http://localhost:8080/`,
