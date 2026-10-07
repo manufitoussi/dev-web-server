@@ -100,6 +100,11 @@ const GROUPS = [
         });
         return expect(res.ok && body.params.city === 'Paris', `params: ${JSON.stringify(body.params)}`);
       }],
+      ['Route with parameters', async () => {
+        const { res, body } = await json(`${API}/users/42?fields=name`);
+        const ok = res.ok && body.user.id === '42' && body.params.fields === 'name';
+        return expect(ok, `/users/:id → ${JSON.stringify(body.user)}`);
+      }],
       ['Invalid JSON body', async () => {
         const { res, body } = await json(`${API}/echo`, {
           method: 'POST',

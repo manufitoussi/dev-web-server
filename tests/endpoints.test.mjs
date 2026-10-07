@@ -6,6 +6,8 @@ import { freePort, makeProject, removeProject, request, startCli } from './helpe
 // a CommonJS endpoints file, as written by the users today.
 const ENDPOINTS = `
 let count = 0;
+const route = name => (req, res, params, sendSuccess) =>
+  sendSuccess(req, res, { route: name, params, routeParams: req.params, query: req.query });
 module.exports = {
   '/hello': (req, res, params, sendSuccess) => sendSuccess(req, res, { hello: params.name }),
   '/echo': (req, res, params, sendSuccess) =>
@@ -19,6 +21,12 @@ module.exports = {
     sendError(req, res, 400, 'bad', undefined, params.callback),
   '/boom': () => { throw new Error('boom'); },
   '/sub/path': (req, res, params, sendSuccess) => sendSuccess(req, res, 'sub path'),
+  '/users/:id': route('user'),
+  '/users/me': route('me'),
+  '/users/:userId/posts/:postId': route('user post'),
+  '/:kind/:id/posts': route('posts of anything'),
+  '/users/:id/posts': route('user posts'),
+  '/files/:name': route('file'),
 };
 `;
 
@@ -127,6 +135,50 @@ describe('endpoints', () => {
     const big = 'é'.repeat(100000);
     const result = await echo('', { method: 'POST', body: JSON.stringify({ big }), headers: { 'content-type': 'application/json' } });
     assert.strictEqual(result.params.big, big);
+  });
+
+  describe('routes with parameters', () => {
+    const call = async path => {
+      const res = await request(server.port, '/api' + path);
+      return { status: res.status, body: JSON.parse(res.body) };
+    };
+
+    it('passes the route parameters in req.params and params', async () => {
+      const { status, body } = await call('/users/42');
+      assert.strictEqual(status, 200);
+      assert.deepStrictEqual(body, { route: 'user', params: { id: '42' }, routeParams: { id: '42' }, query: {} });
+
+      const post = await call('/users/42/posts/7');
+      assert.strictEqual(post.body.route, 'user post');
+      assert.deepStrictEqual(post.body.routeParams, { userId: '42', postId: '7' });
+    });
+
+    it('prefers the exact endpoint', async () => {
+      assert.strictEqual((await call('/users/me')).body.route, 'me');
+    });
+
+    it('prefers the route with the most static segments', async () => {
+      assert.strictEqual((await call('/users/1/posts')).body.route, 'user posts');
+      const other = await call('/books/1/posts');
+      assert.strictEqual(other.body.route, 'posts of anything');
+      assert.deepStrictEqual(other.body.routeParams, { kind: 'books', id: '1' });
+    });
+
+    it('decodes the route parameters', async () => {
+      assert.deepStrictEqual((await call('/files/John%20Doe%20%C3%A9t%C3%A9')).body.routeParams, { name: 'John Doe été' });
+    });
+
+    it('gives priority to the route parameters over the query string', async () => {
+      const { body } = await call('/users/42?id=1&sort=asc');
+      assert.deepStrictEqual(body.params, { id: '42', sort: 'asc' });
+      assert.deepStrictEqual(body.query, { id: '1', sort: 'asc' });
+    });
+
+    it('returns 404 when no route matches', async () => {
+      for (const path of ['/users/', '/users/1/2', '/files/a/b']) {
+        assert.strictEqual((await call(path)).status, 404, path);
+      }
+    });
   });
 
   it('answers OPTIONS requests without calling the endpoint', async () => {

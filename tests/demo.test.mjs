@@ -36,6 +36,9 @@ describe('demo test card', () => {
     const echo = JSON.parse((await request(server.port, '/api/echo?name=demo')).body);
     assert.strictEqual(echo.params.name, 'demo');
 
+    const user = JSON.parse((await request(server.port, '/api/users/42')).body);
+    assert.strictEqual(user.user.id, '42');
+
     assert.strictEqual((await request(server.port, '/api/error')).status, 401);
     assert.strictEqual((await request(server.port, '/api/boom')).status, 500);
     assert.strictEqual((await request(server.port, '/api/jsonp?callback=cb')).body, 'cb({"jsonp":true});');

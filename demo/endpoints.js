@@ -27,6 +27,11 @@ export default {
     });
   },
 
+  // a route with a parameter: /api/users/42 gives req.params.id = '42'.
+  '/users/:id': (req, res, params, sendSuccess) => {
+    sendSuccess(req, res, { user: { id: req.params.id, name: `User ${req.params.id}` }, params });
+  },
+
   // JSONP: /api/jsonp?callback=myCallback gives myCallback({...});
   '/jsonp': (req, res, params, sendSuccess) => {
     sendSuccess(req, res, { jsonp: true }, params.callback);

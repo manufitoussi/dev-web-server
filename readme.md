@@ -159,6 +159,8 @@ Example:
 
 The API endpoints can be defined in a [NodeJS] script file. It has to export a `JavaScript` object. Each of its properties declares an endpoint: the key is the URL path after the endpoints root URL (default: `/api`), and the value is the `function` to execute.
 
+A key can be a route with parameters, starting with `:`: the key `/users/:id` matches `/users/42`, and the endpoint gets `req.params.id` = `'42'` (decoded). An endpoint with the exact key wins over the routes (`/users/me` over `/users/:id`), and if several routes match, the one with the most static segments wins (`/users/:id/posts` over `/:kind/:id/posts`), then the first declared.
+
 The file can be an ES module (`export default { ... }`) or a CommonJS module (`module.exports = { ... }`). Its format is chosen by [NodeJS] as usual: the `.mjs` and `.cjs` extensions, or the `type` field of the nearest `package.json` for a `.js` file.
 
 ### Endpoint function
