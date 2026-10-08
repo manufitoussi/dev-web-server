@@ -1,0 +1,39 @@
+name: Publish
+
+# Publishes the package on npm when a GitHub release is published, with the
+# npm trusted publishing: no npm token, and a provenance statement.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish on npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+
+      # the release tag (e.g. v3.1.0) has to match the version of package.json.
+      - name: Check the version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: node scripts/check-release-version.js "$TAG"
+
+      # the trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@latest
+
+      # a prerelease (e.g. v3.1.0-beta.1) is published with the 'next' tag, not 'latest'.
+      - run: npm publish --tag ${{ github.event.release.prerelease && 'next' || 'latest' }}

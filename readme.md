@@ -348,6 +348,16 @@ The tests run the real command line application and query it over HTTP (see `tes
 
 The decisions taken on the project are recorded in [docs/decisions.md](docs/decisions.md).
 
+## Releasing
+
+The package is published on npm by GitHub Actions when a GitHub release is published (`.github/workflows/publish.yml`), with the npm trusted publishing: no npm token is needed, and npm shows the provenance of the package.
+
+1. On `develop`: update the `version` of `package.json` and the `CHANGELOG.md`.
+2. Merge `develop` into `master` (pull request).
+3. Create a GitHub release on `master` with a new tag `v<version>` (e.g. `v3.1.0`) and the changelog of the version.
+
+The workflow runs the tests, checks that the tag matches the version of `package.json`, then publishes the package. A release marked as a pre-release (e.g. `v3.1.0-beta.1`) is published with the npm tag `next` instead of `latest`.
+
 # License
 
 [MIT](LICENSE)

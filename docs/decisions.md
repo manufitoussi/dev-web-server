@@ -102,6 +102,12 @@ This file records the decisions taken on the project, with their context, so tha
 **Decision.** The server watches the directory of the endpoints file (some editors replace the file when saving it) and reloads the file when it changes, after 100 ms without change. An ES module is imported again with a new url (`?version=n`), and a CommonJS module is removed from the require cache first. If the new version cannot be loaded, the error is displayed and the previous endpoints are kept. An endpoints file missing at the start is loaded when it is created. There is no option to disable the reload.
 **Consequences.** The state of the endpoints file is reset by a reload, and the modules it imports are not reloaded. Each version of an ES module stays in memory, which is acceptable for a development server. The watcher starts once the server listens, so the application still exits when the server cannot start.
 
+## 2026-10-08 — Automatic publication on npm
+
+**Context.** The 3.0.0 was published by hand, and npm now requires a two-factor authentication or a granular token to publish.
+**Decision.** A GitHub Actions workflow (`.github/workflows/publish.yml`) publishes the package when a GitHub release is published, with the npm trusted publishing (OpenID Connect): no npm token is stored, and the package gets a provenance statement. The workflow runs the tests and checks that the release tag matches the version of `package.json` (`scripts/check-release-version.js`) before publishing. A pre-release is published with the `next` npm tag.
+**Consequences.** The release order becomes: merge into `master`, then create the GitHub release (with its tag), which publishes on npm. The trusted publisher has to be declared once in the settings of the package on npmjs.com. The previous order of the 3.0.0 entry is replaced.
+
 ## 2026-10-07 — Version 3.0.0
 
 **Context.** The merged endpoint parameters (the raw body moves from `params` to `req.body`), the Node.js 22 requirement, the stricter parameter validation, and the ES modules migration with the async `start()` are breaking changes.

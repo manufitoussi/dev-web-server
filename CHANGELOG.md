@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Maintenance
+
+- The package is published on npm by GitHub Actions when a GitHub release is published, with a provenance statement.
+
 ## 3.0.0 — 2026-10-07
 
 A major version: modernized, tested, and with new features for mocking APIs. See [docs/upgrade-3.md](https://github.com/manufitoussi/dev-web-server/blob/master/docs/upgrade-3.md) to upgrade from 2.x.
