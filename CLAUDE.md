@@ -4,7 +4,7 @@ Guidance for Claude Code on this repository. Read [CONTRIBUTING.md](CONTRIBUTING
 
 ## Project
 
-A small development web server published on npm (static files, mocked API endpoints, SPA, CORS), as a command line application configured by parameters or a `dev-web-server.json` file. Node.js 22+, ES modules, no build step, one runtime dependency (`mime-types`). The decisions and their reasons are in `docs/decisions.md`: do not question them without a good reason.
+A small development web server published on npm (static files, mocked API endpoints, SPA, CORS), as a command line application configured by parameters or a `dev-web-server.json` file. Node.js 22+, ES modules, no build step, one runtime dependency (`mime-types`). The decisions and their reasons are in `docs/decisions.md`: do not question them without a good reason. The possible evolutions are in `docs/roadmap.md`: remove an item when it is done.
 
 ## Layout
 

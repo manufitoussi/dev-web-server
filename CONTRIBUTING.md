@@ -13,6 +13,8 @@ Open an [issue](https://github.com/manufitoussi/dev-web-server/issues) with:
 
 For a large change, open an issue first to discuss it: the project stays small on purpose, with a single runtime dependency.
 
+The possible evolutions already considered are listed in [docs/roadmap.md](docs/roadmap.md).
+
 ## Setting up
 
 You need Node.js 22 or later and [pnpm](https://pnpm.io/) (the repository has a `pnpm-lock.yaml`).
