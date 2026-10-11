@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 3.0.1 — 2026-10-11
+
+### Fixes
+
+- An `async` endpoint that throws, or a rejected promise returned by an endpoint, no longer crashes the server: it gives a `500` error.
 
 ### Maintenance
 

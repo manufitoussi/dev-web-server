@@ -269,22 +269,29 @@ const Service = function (config) {
 
   /**
    * calls an endpoint callback, sending a 500 error instead of crashing
-   * the server if it throws.
+   * the server if it throws, or if the promise of an async endpoint is rejected.
    * @param  {Function} endPoint
    * @param  {Request} req
    * @param  {Response} res
    * @param  {Object|String} params
    */
   const callEndPoint = function (endPoint, req, res, params) {
-    try {
-      endPoint(req, res, params, sendSuccess, sendError);
-    } catch (e) {
-      logger.error(style('red', e.stack || e.toString()));
+    const onError = function (e) {
+      logger.error(style('red', (e && e.stack) || String(e)));
       if (res.headersSent) {
         res.end();
         return;
       }
-      sendError(req, res, 500, 'endPoint error: ' + (e.message || e.toString()));
+      sendError(req, res, 500, 'endPoint error: ' + ((e && e.message) || String(e)));
+    };
+
+    try {
+      const result = endPoint(req, res, params, sendSuccess, sendError);
+      if (result && typeof result.then === 'function') {
+        result.then(undefined, onError);
+      }
+    } catch (e) {
+      onError(e);
     }
   };
 
