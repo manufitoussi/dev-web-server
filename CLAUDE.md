@@ -17,7 +17,7 @@ A small development web server published on npm (static files, mocked API endpoi
 ## Maintainer rules
 
 - The maintainer usually discusses in French; everything in the repository is in English.
-- Merge a branch into `develop` with `git merge --no-ff` (message `Merge branch '<branch>' into develop`). `develop` goes to `master` through a pull request.
+- A change of a single commit goes directly on `develop`, without a branch. A change of several commits goes on a branch, merged into `develop` as a semi-linear history: rebase the branch on `develop`, then `git merge --no-ff` (message `Merge branch '<branch>' into develop`). `develop` goes to `master` through a pull request.
 - Releases: see the readme. A breaking change needs a major version and an upgrade guide (like `docs/upgrade-3.md`).
 
 ## Pitfalls
