@@ -320,6 +320,8 @@ To stop the server, type `Ctrl+C`.
 
 # Development
 
+To report a bug or propose a change, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Test card
 
 Run the demo with:
