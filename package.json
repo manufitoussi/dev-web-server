@@ -1,6 +1,6 @@
 {
   "name": "dev-web-server",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A simple web & API server for your development: static files, mocked API endpoints, SPA, CORS.",
   "author": "Emmanuel Fitoussi",
   "license": "MIT",
