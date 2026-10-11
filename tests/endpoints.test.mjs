@@ -21,6 +21,12 @@ module.exports = {
   '/jsonpError': (req, res, params, sendSuccess, sendError) =>
     sendError(req, res, 400, 'bad', undefined, params.callback),
   '/boom': () => { throw new Error('boom'); },
+  '/asyncBoom': async () => { throw new Error('async boom'); },
+  '/asyncReject': () => Promise.reject('rejected'),
+  '/asyncSuccess': async (req, res, params, sendSuccess) => {
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendSuccess(req, res, { async: true });
+  },
   '/sub/path': (req, res, params, sendSuccess) => sendSuccess(req, res, 'sub path'),
   '/users/:id': route('user'),
   '/users/me': route('me'),
@@ -238,6 +244,25 @@ describe('endpoints', () => {
 
     const next = await request(server.port, '/api/hello?name=again');
     assert.strictEqual(next.status, 200);
+  });
+
+  it('returns 500 and keeps running when an async endpoint rejects', async () => {
+    const res = await request(server.port, '/api/asyncBoom');
+    assert.strictEqual(res.status, 500);
+    assert.match(JSON.parse(res.body).error.message, /async boom/);
+
+    const rejected = await request(server.port, '/api/asyncReject');
+    assert.strictEqual(rejected.status, 500);
+    assert.match(JSON.parse(rejected.body).error.message, /rejected/);
+
+    const next = await request(server.port, '/api/hello?name=again');
+    assert.strictEqual(next.status, 200);
+  });
+
+  it('sends the response of an async endpoint', async () => {
+    const res = await request(server.port, '/api/asyncSuccess');
+    assert.strictEqual(res.status, 200);
+    assert.deepStrictEqual(JSON.parse(res.body), { async: true });
   });
 
   it('still serves the static files', async () => {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- An `async` endpoint that throws, or a rejected promise returned by an endpoint, no longer crashes the server: it gives a `500` error.
+
 ### Maintenance
 
 - The package is published on npm by GitHub Actions when a GitHub release is published, with a provenance statement.

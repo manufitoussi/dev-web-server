@@ -209,7 +209,7 @@ The endpoint function sends the response. It takes the following arguments:
 | sendSuccess | `Function` | Callback function to call to send a successful response |
 | sendError | `Function` | Callback function to call to send a failed response |
 
-If the endpoint function throws an exception, the server responds with a `500` error and keeps running.
+The endpoint function can be `async`. If it throws an exception, or if its promise is rejected, the server responds with a `500` error and keeps running.
 
 The parameters are also available separately on the request object:
 
